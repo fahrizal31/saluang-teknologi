@@ -73,6 +73,9 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
     results: [] as string[],
     techStackInput: '',
     techStack: [] as string[],
+    testimonialQuote: '',
+    testimonialAuthor: '',
+    testimonialRole: '',
   });
 
   const categories = [
@@ -101,6 +104,9 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
       results: [],
       techStackInput: '',
       techStack: [],
+      testimonialQuote: '',
+      testimonialAuthor: '',
+      testimonialRole: '',
     });
     setEditingProject(null);
   };
@@ -130,6 +136,9 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
       results: Array.isArray(project.results) ? project.results : [],
       techStackInput: '',
       techStack: Array.isArray(project.techStack) ? project.techStack : [],
+      testimonialQuote: (project.testimonial as any)?.quote || '',
+      testimonialAuthor: (project.testimonial as any)?.author || '',
+      testimonialRole: (project.testimonial as any)?.role || '',
     });
     setIsModalOpen(true);
   };
@@ -174,7 +183,13 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
       displayOrder: Number(formData.displayOrder) || 0,
       results: formData.results,
       techStack: formData.techStack,
-      testimonial: editingProject ? editingProject.testimonial : null,
+      testimonial: formData.testimonialQuote.trim()
+        ? {
+            quote: formData.testimonialQuote.trim(),
+            author: formData.testimonialAuthor.trim() || formData.clientName.trim(),
+            role: formData.testimonialRole.trim() || 'Klien / Mitra',
+          }
+        : null,
     };
 
     try {
@@ -902,6 +917,53 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
                       </button>
                     </span>
                   ))}
+                </div>
+              </div>
+
+              {/* Row 8: Testimoni & Kutipan Klien (Opsional) */}
+              <div className="bg-saluang-sand/50 p-4 rounded-2xl border border-saluang-dark/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="block font-black text-saluang-dark">
+                      Testimoni / Ulasan Klien (Opsional)
+                    </span>
+                    <span className="text-[11px] text-saluang-dark/60 font-medium">
+                      Kotak kutipan testimoni klien yang muncul di dalam modal rincian proyek publik
+                    </span>
+                  </div>
+                </div>
+                <textarea
+                  rows={2}
+                  value={formData.testimonialQuote}
+                  onChange={(e) => setFormData({ ...formData, testimonialQuote: e.target.value })}
+                  placeholder="Kutipan ulasan klien... Contoh: Saluang Teknologi mengubah klinik kami dari serba manual menjadi modern..."
+                  className="w-full px-3 py-2 rounded-xl border-2 border-saluang-dark bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-saluang-teal/30 leading-relaxed"
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-[11px] font-bold text-saluang-dark/70 mb-1">
+                      Nama Pemberi Ulasan
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.testimonialAuthor}
+                      onChange={(e) => setFormData({ ...formData, testimonialAuthor: e.target.value })}
+                      placeholder="Contoh: dr. H. Rahmat Syahputra, Sp.PD"
+                      className="w-full px-3 py-1.5 rounded-lg border-2 border-saluang-dark bg-white text-xs font-semibold focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-saluang-dark/70 mb-1">
+                      Jabatan / Peran Klien
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.testimonialRole}
+                      onChange={(e) => setFormData({ ...formData, testimonialRole: e.target.value })}
+                      placeholder="Contoh: Direktur Medis"
+                      className="w-full px-3 py-1.5 rounded-lg border-2 border-saluang-dark bg-white text-xs font-semibold focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
