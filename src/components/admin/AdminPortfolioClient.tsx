@@ -24,9 +24,11 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  ZoomIn,
 } from 'lucide-react';
 import type { PortfolioProjectModel } from '@/lib/db/schema';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
 
 interface AdminPortfolioClientProps {
   initialProjects: PortfolioProjectModel[];
@@ -39,6 +41,12 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(6);
+  const [lightboxImage, setLightboxImage] = useState<{
+    src: string;
+    alt: string;
+    title: string;
+    subtitle: string;
+  } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<PortfolioProjectModel | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -357,21 +365,43 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
               key={project.id}
               className="border-2 border-saluang-dark shadow-neo flex flex-col p-0 overflow-hidden hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
             >
-              {/* Thumbnail Header */}
-              <div className="relative h-44 w-full bg-saluang-dark/10 border-b-2 border-saluang-dark overflow-hidden">
+              {/* Thumbnail Header with Click to Enlarge */}
+              <div
+                onClick={() => {
+                  if (project.imageUrl) {
+                    setLightboxImage({
+                      src: project.imageUrl,
+                      alt: project.title,
+                      title: project.title,
+                      subtitle: project.clientName,
+                    });
+                  }
+                }}
+                className={`group/thumb relative h-44 w-full bg-saluang-dark/10 border-b-2 border-saluang-dark overflow-hidden ${
+                  project.imageUrl ? 'cursor-zoom-in' : ''
+                }`}
+                title={project.imageUrl ? 'Klik untuk memperbesar gambar asli' : undefined}
+              >
                 {project.imageUrl ? (
-                  <img
-                    src={project.imageUrl}
-                    alt={project.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    <img
+                      src={project.imageUrl}
+                      alt={project.title}
+                      className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-300"
+                    />
+                    {/* Hover Zoom Overlay */}
+                    <div className="absolute inset-0 bg-saluang-dark/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-saluang-cream font-black text-xs z-10 pointer-events-none">
+                      <ZoomIn className="w-4 h-4 text-saluang-teal" />
+                      <span>Lihat Gambar Asli</span>
+                    </div>
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-saluang-dark/40">
                     <ImageIcon className="w-8 h-8" />
                   </div>
                 )}
                 {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-20 pointer-events-none">
                   <Badge variant="teal" size="sm">
                     {project.categoryLabel}
                   </Badge>
@@ -382,7 +412,7 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
                     </span>
                   )}
                 </div>
-                <div className="absolute bottom-2 right-2 bg-saluang-cream/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold border border-saluang-dark text-saluang-dark">
+                <div className="absolute bottom-2 right-2 bg-saluang-cream/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold border border-saluang-dark text-saluang-dark z-20 pointer-events-none">
                   {project.completionYear}
                 </div>
               </div>
@@ -930,6 +960,18 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
             </div>
           </div>
         </div>
+      )}
+
+      {/* Full Image Lightbox Modal */}
+      {lightboxImage && (
+        <ImageLightbox
+          isOpen={Boolean(lightboxImage)}
+          onClose={() => setLightboxImage(null)}
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          title={lightboxImage.title}
+          subtitle={lightboxImage.subtitle}
+        />
       )}
     </div>
   );

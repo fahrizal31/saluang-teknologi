@@ -18,7 +18,9 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  ZoomIn,
 } from 'lucide-react';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
 
 const categories: { label: string; value: 'all' | ServiceCategory }[] = [
   { label: 'Semua Proyek', value: 'all' },
@@ -39,6 +41,12 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<'all' | ServiceCategory>('all');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [activeModalProject, setActiveModalProject] = useState<PortfolioProject | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{
+    src: string;
+    alt: string;
+    title: string;
+    subtitle: string;
+  } | null>(null);
 
   const PROJECTS_PER_PAGE = 6;
   const projects = initialProjects && initialProjects.length > 0 ? initialProjects : portfolioData;
@@ -178,21 +186,38 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
                   }
                 }}
               >
-                {/* Project Image */}
-                <div className="relative h-48 sm:h-56 w-full overflow-hidden border-b-2 border-saluang-dark bg-slate-100">
+                {/* Project Image with Lightbox Zoom on Click */}
+                <div
+                  className="group/img relative h-48 sm:h-56 w-full overflow-hidden border-b-2 border-saluang-dark bg-slate-100 cursor-zoom-in"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxImage({
+                      src: project.imageUrl,
+                      alt: project.title,
+                      title: project.title,
+                      subtitle: project.clientName,
+                    });
+                  }}
+                  title="Klik untuk melihat gambar asli ukuran penuh"
+                >
                   <Image
                     src={project.imageUrl}
                     alt={project.title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover group-hover/img:scale-105 transition-transform duration-500"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
                   />
-                  <div className="absolute top-4 left-4">
+                  {/* Zoom Hint on Hover */}
+                  <div className="absolute inset-0 bg-saluang-dark/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-saluang-cream font-black text-xs z-10 pointer-events-none">
+                    <ZoomIn className="w-4 h-4 text-saluang-yellow" />
+                    <span>Perbesar Gambar Asli</span>
+                  </div>
+                  <div className="absolute top-4 left-4 z-20 pointer-events-none">
                     <Badge variant="yellow" size="sm">
                       {project.categoryLabel}
                     </Badge>
                   </div>
-                  <div className="absolute top-4 right-4 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-saluang-cream text-saluang-dark border-2 border-saluang-dark shadow-neo-sm">
+                  <div className="absolute top-4 right-4 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-saluang-cream text-saluang-dark border-2 border-saluang-dark shadow-neo-sm z-20 pointer-events-none">
                     {project.completionYear}
                   </div>
                 </div>
@@ -361,15 +386,30 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
 
             {/* 2. Modal Scrollable Body */}
             <div className="p-4 sm:p-7 overflow-y-auto space-y-5 sm:space-y-6 flex-1">
-              {/* Cover Image in Modal */}
-              <div className="relative h-44 sm:h-64 lg:h-72 w-full rounded-2xl overflow-hidden border-2 border-saluang-dark bg-slate-100 shrink-0">
+              {/* Cover Image in Modal with Click to Zoom */}
+              <div
+                onClick={() => {
+                  setLightboxImage({
+                    src: activeModalProject.imageUrl,
+                    alt: activeModalProject.title,
+                    title: activeModalProject.title,
+                    subtitle: activeModalProject.clientName,
+                  });
+                }}
+                className="group/modalimg relative h-44 sm:h-64 lg:h-72 w-full rounded-2xl overflow-hidden border-2 border-saluang-dark bg-slate-100 shrink-0 cursor-zoom-in"
+                title="Klik untuk melihat gambar asli ukuran penuh"
+              >
                 <Image
                   src={activeModalProject.imageUrl}
                   alt={activeModalProject.title}
                   fill
-                  className="object-cover"
+                  className="object-cover group-hover/modalimg:scale-105 transition-transform duration-300"
                   sizes="(max-width: 768px) 100vw, 800px"
                 />
+                <div className="absolute inset-0 bg-saluang-dark/35 opacity-0 group-hover/modalimg:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-saluang-cream font-black text-xs z-10 pointer-events-none">
+                  <ZoomIn className="w-4 h-4 text-saluang-yellow" />
+                  <span>Lihat Resolusi Penuh</span>
+                </div>
               </div>
 
               {/* Problem & Solution Breakdown */}
@@ -480,6 +520,18 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
           </div>
         </div>,
         document.body
+      )}
+
+      {/* Full Image Lightbox Modal */}
+      {lightboxImage && (
+        <ImageLightbox
+          isOpen={Boolean(lightboxImage)}
+          onClose={() => setLightboxImage(null)}
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          title={lightboxImage.title}
+          subtitle={lightboxImage.subtitle}
+        />
       )}
     </>
   );
