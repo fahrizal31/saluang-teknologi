@@ -104,32 +104,70 @@ export async function POST(req: NextRequest) {
       ? requestedFolder
       : 'portfolio';
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', safeFolder);
-    await fs.mkdir(uploadDir, { recursive: true });
-
     // Generate nama file unik dengan timestamp & random hex
     const ext = getExtension(file.name, file.type);
     const baseName = sanitizeBaseName(file.name);
     const uniqueHash = crypto.randomBytes(4).toString('hex');
     const filename = `${baseName}-${Date.now()}-${uniqueHash}.${ext}`;
-    const destinationPath = path.join(uploadDir, filename);
 
-    // Tulis buffer file ke disk
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    await fs.writeFile(destinationPath, buffer);
+    // 1. Prioritas Cloud: Jika Vercel Blob terkonfigurasi (BLOB_READ_WRITE_TOKEN tersedia)
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const { put } = await import('@vercel/blob');
+        const blob = await put(`uploads/${safeFolder}/${filename}`, file, {
+          access: 'public',
+        });
 
-    // URL publik yang dapat diakses Next.js
-    const publicUrl = `/uploads/${safeFolder}/${filename}`;
+        return NextResponse.json({
+          success: true,
+          url: blob.url,
+          filename,
+          size: file.size,
+          mimeType: file.type,
+          message: 'Gambar berhasil diunggah ke Vercel Blob!',
+        });
+      } catch (blobError: any) {
+        console.error('[API:Admin:Upload:POST] Error saat upload ke Vercel Blob:', blobError);
+        return NextResponse.json(
+          { error: blobError?.message || 'Gagal mengunggah gambar ke cloud storage' },
+          { status: 500 }
+        );
+      }
+    }
 
-    return NextResponse.json({
-      success: true,
-      url: publicUrl,
-      filename,
-      size: file.size,
-      mimeType: file.type,
-      message: 'Gambar berhasil diunggah dari perangkat!',
-    });
+    // 2. Lingkungan Lokal / VPS: Simpan ke folder public/uploads/
+    try {
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', safeFolder);
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const destinationPath = path.join(uploadDir, filename);
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      await fs.writeFile(destinationPath, buffer);
+
+      const publicUrl = `/uploads/${safeFolder}/${filename}`;
+
+      return NextResponse.json({
+        success: true,
+        url: publicUrl,
+        filename,
+        size: file.size,
+        mimeType: file.type,
+        message: 'Gambar berhasil diunggah dari perangkat!',
+      });
+    } catch (fsError: any) {
+      // Jika berjalan di Vercel Serverless tanpa Vercel Blob, disk bersifat Read-Only (EROFS)
+      if (fsError?.code === 'EROFS' || fsError?.message?.includes('read-only')) {
+        return NextResponse.json(
+          {
+            error:
+              'Penyimpanan disk serverless Vercel bersifat Read-Only. Untuk upload dari perangkat di Vercel, cukup klik 1-kali tombol "Create Blob" di tab Storage dashboard Vercel, ATAU gunakan tab "Tautan URL Gambar" untuk memasukkan tautan gambar langsung.',
+          },
+          { status: 500 }
+        );
+      }
+      throw fsError;
+    }
   } catch (error: any) {
     console.error('[API:Admin:Upload:POST] Error saat menyimpan file:', error);
     return NextResponse.json(
