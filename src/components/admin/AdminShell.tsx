@@ -21,6 +21,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   LayoutGrid,
+  Activity,
 } from 'lucide-react';
 
 interface AdminShellProps {
@@ -103,6 +104,12 @@ export function AdminShell({ children, adminUser }: AdminShellProps) {
       shortLabel: 'Leads',
       href: '/admin/leads',
       icon: Inbox,
+    },
+    {
+      label: 'Statistik Pengunjung',
+      shortLabel: 'Statistik',
+      href: '/admin/analytics',
+      icon: Activity,
     },
     {
       label: 'Katalog Layanan',

@@ -200,6 +200,46 @@ export const uploadedFiles = mysqlTable('uploaded_files', {
 export type UploadedFileModel = typeof uploadedFiles.$inferSelect;
 export type NewUploadedFile = typeof uploadedFiles.$inferInsert;
 
+// ============================================================================
+// 7. VISITOR SESSIONS (Pelacakan Pengunjung Online & Profil Sesi)
+// ============================================================================
+export const visitorSessions = mysqlTable('visitor_sessions', {
+  sessionId: varchar('session_id', { length: 64 }).primaryKey(),
+  ipAddress: varchar('ip_address', { length: 64 }).notNull(),
+  countryCode: varchar('country_code', { length: 10 }).default('ID'),
+  countryName: varchar('country_name', { length: 100 }).default('Indonesia'),
+  city: varchar('city', { length: 100 }),
+  currentPath: varchar('current_path', { length: 255 }).notNull().default('/'),
+  deviceType: varchar('device_type', { length: 20 }).notNull().default('desktop'),
+  browser: varchar('browser', { length: 50 }),
+  os: varchar('os', { length: 50 }),
+  pageviewCount: int('pageview_count').notNull().default(1),
+  firstSeenAt: timestamp('first_seen_at').notNull().defaultNow(),
+  lastActiveAt: timestamp('last_active_at').notNull().defaultNow(),
+});
+
+export type VisitorSessionModel = typeof visitorSessions.$inferSelect;
+export type NewVisitorSession = typeof visitorSessions.$inferInsert;
+
+// ============================================================================
+// 8. VISITOR PAGEVIEWS (Log Riwayat Kunjungan Pengunjung)
+// ============================================================================
+export const visitorPageviews = mysqlTable('visitor_pageviews', {
+  id: varchar('id', { length: 64 }).primaryKey(),
+  sessionId: varchar('session_id', { length: 64 }).notNull(),
+  path: varchar('path', { length: 255 }).notNull(),
+  ipAddress: varchar('ip_address', { length: 64 }).notNull(),
+  countryCode: varchar('country_code', { length: 10 }),
+  countryName: varchar('country_name', { length: 100 }),
+  city: varchar('city', { length: 100 }),
+  referrer: text('referrer'),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export type VisitorPageviewModel = typeof visitorPageviews.$inferSelect;
+export type NewVisitorPageview = typeof visitorPageviews.$inferInsert;
+
 export const authSchema = {
   user,
   session,
@@ -214,7 +254,10 @@ export const appSchema = {
   teamMembers,
   companySettings,
   uploadedFiles,
+  visitorSessions,
+  visitorPageviews,
   ...authSchema,
 };
+
 
 
