@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { AdminShell } from '@/components/admin/AdminShell';
 
@@ -28,13 +29,15 @@ export default async function AdminLayout({
   }
 
   return (
-    <AdminShell
-      adminUser={{
-        name: session.user.name || 'Administrator',
-        email: session.user.email,
-      }}
-    >
-      {children}
-    </AdminShell>
+    <Suspense fallback={<div className="min-h-screen bg-saluang-sand" />}>
+      <AdminShell
+        adminUser={{
+          name: session.user.name || 'Administrator',
+          email: session.user.email,
+        }}
+      >
+        {children}
+      </AdminShell>
+    </Suspense>
   );
 }

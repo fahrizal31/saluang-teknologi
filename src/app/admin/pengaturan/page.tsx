@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { db } from '@/lib/db';
 import { companySettings, type CompanySettingsModel } from '@/lib/db/schema';
 import { companyData } from '@/data/company';
@@ -56,5 +57,9 @@ export default async function AdminCompanyPage() {
     updatedAt: new Date(),
   };
 
-  return <AdminCompanyClient initialSettings={settings || fallbackSettings} />;
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm font-bold text-saluang-dark">Memuat pengaturan perusahaan...</div>}>
+      <AdminCompanyClient initialSettings={settings || fallbackSettings} />
+    </Suspense>
+  );
 }

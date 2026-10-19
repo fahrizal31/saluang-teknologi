@@ -15,6 +15,9 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Hubungi Kami & Minta Penawaran Proyek Perangkat Lunak',
   description:
@@ -60,7 +63,7 @@ export default async function ContactPage() {
                 </div>
               }
             >
-              <ProjectInquiryForm />
+              <ProjectInquiryForm whatsappNumber={companyData.phoneWhatsapp} />
             </Suspense>
           </div>
 

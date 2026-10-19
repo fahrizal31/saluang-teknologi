@@ -11,6 +11,9 @@ const jakarta = Plus_Jakarta_Sans({
   variable: '--font-sans',
 });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const viewport: Viewport = {
   themeColor: '#0B1120',
   width: 'device-width',

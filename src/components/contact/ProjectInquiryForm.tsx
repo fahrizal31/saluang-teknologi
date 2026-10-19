@@ -16,7 +16,11 @@ import {
   RotateCcw,
 } from 'lucide-react';
 
-export const ProjectInquiryForm: React.FC = () => {
+interface ProjectInquiryFormProps {
+  whatsappNumber?: string;
+}
+
+export const ProjectInquiryForm: React.FC<ProjectInquiryFormProps> = ({ whatsappNumber }) => {
   const searchParams = useSearchParams();
   const preselectedService = searchParams.get('layanan');
 
@@ -112,7 +116,8 @@ export const ProjectInquiryForm: React.FC = () => {
   };
 
   const getWhatsAppSummaryUrl = () => {
-    if (!submittedData) return `https://wa.me/${companyData.phoneWhatsapp}`;
+    const targetPhone = whatsappNumber || companyData.phoneWhatsapp;
+    if (!submittedData) return `https://wa.me/${targetPhone}`;
 
     const serviceLabels: Record<string, string> = {
       website: 'Website Profesional',
@@ -129,7 +134,7 @@ ${submittedData.companyName ? `- Perusahaan: ${submittedData.companyName}\n` : '
 
 Mohon tindak lanjut dan estimasi biayanya. Terima kasih!`;
 
-    return `https://wa.me/${companyData.phoneWhatsapp}?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(text)}`;
   };
 
   if (submitSuccess && submittedData) {

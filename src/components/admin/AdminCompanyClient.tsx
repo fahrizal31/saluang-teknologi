@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -21,6 +21,7 @@ import {
   Target,
   FileText,
   BarChart3,
+  MessageCircle,
 } from 'lucide-react';
 import type { CompanySettingsModel } from '@/lib/db/schema';
 
@@ -30,7 +31,21 @@ interface AdminCompanyClientProps {
 
 export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'profile' | 'vision' | 'contact' | 'address' | 'socials' | 'stats'>('profile');
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams?.get('tab') as 'profile' | 'vision' | 'contact' | 'address' | 'socials' | 'stats' | null;
+
+  const [activeTab, setActiveTab] = useState<'profile' | 'vision' | 'contact' | 'address' | 'socials' | 'stats'>(
+    requestedTab && ['profile', 'vision', 'contact', 'address', 'socials', 'stats'].includes(requestedTab)
+      ? requestedTab
+      : 'profile'
+  );
+
+  useEffect(() => {
+    const tab = searchParams?.get('tab');
+    if (tab && ['profile', 'vision', 'contact', 'address', 'socials', 'stats'].includes(tab)) {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -362,10 +377,26 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
           {/* TAB 3: KONTAK & WHATSAPP */}
           {activeTab === 'contact' && (
             <div className="space-y-4">
-              <h2 className="text-base font-black text-saluang-dark border-b-2 border-saluang-dark/10 pb-2 flex items-center gap-2">
-                <Phone className="w-4 h-4 text-saluang-teal" />
-                <span>Saluran Komunikasi & Kontak Resmi</span>
+              <h2 className="text-base font-black text-saluang-dark border-b-2 border-saluang-dark/10 pb-2 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-saluang-teal" />
+                  <span>Saluran Komunikasi & Kontak Resmi</span>
+                </span>
+                <span className="text-[11px] font-bold text-saluang-teal bg-saluang-teal/10 px-2.5 py-0.5 rounded-full border border-saluang-teal/30">
+                  Sinkron Otomatis ke Seluruh Situs
+                </span>
               </h2>
+
+              {/* Alert Tips */}
+              <div className="p-3.5 rounded-xl bg-saluang-sand/80 border-2 border-saluang-dark/20 text-xs font-semibold text-saluang-dark space-y-1">
+                <p className="font-black text-saluang-coral flex items-center gap-1.5">
+                  <MessageCircle className="w-4 h-4" />
+                  Perubahan Langsung Aktif di Seluruh Website:
+                </p>
+                <p className="text-[11px] text-saluang-dark/80 leading-relaxed">
+                  Mengubah nomor WhatsApp dan Email di tab ini akan langsung memperbarui tombol <strong>Floating WhatsApp</strong> (pojok kanan bawah), tombol CTA Beranda, tombol konsultasi WhatsApp di Detail Layanan, Footer situs, dan Halaman Kontak.
+                </p>
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -374,12 +405,12 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
                     type="text"
                     required
                     value={formData.phoneWhatsapp}
-                    onChange={(e) => setFormData({ ...formData, phoneWhatsapp: e.target.value })}
-                    placeholder="6281234567890"
+                    onChange={(e) => setFormData({ ...formData, phoneWhatsapp: e.target.value.replace(/[^0-9]/g, '') })}
+                    placeholder="Contoh: 6281234567890"
                     className="w-full px-3 py-2 rounded-xl border-2 border-saluang-dark bg-white font-mono font-bold focus:outline-none focus:ring-2 focus:ring-saluang-teal/30"
                   />
                   <span className="text-[10px] text-saluang-dark/60 mt-1 block">
-                    Digunakan untuk tautan tombol Floating WhatsApp & CTA konsultasi langsung.
+                    Gunakan kode negara 62 tanpa tanda + atau spasi (contoh: <code>6281234567890</code>).
                   </span>
                 </div>
                 <div>
@@ -392,6 +423,9 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
                     placeholder="+62 812-3456-7890"
                     className="w-full px-3 py-2 rounded-xl border-2 border-saluang-dark bg-white font-semibold focus:outline-none focus:ring-2 focus:ring-saluang-teal/30"
                   />
+                  <span className="text-[10px] text-saluang-dark/60 mt-1 block">
+                    Teks nomor telepon yang ditampilkan di teks footer & header.
+                  </span>
                 </div>
               </div>
 
@@ -405,6 +439,33 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
                   placeholder="kontak@saluangteknologi.com"
                   className="w-full px-3 py-2 rounded-xl border-2 border-saluang-dark bg-white font-semibold focus:outline-none focus:ring-2 focus:ring-saluang-teal/30"
                 />
+                <span className="text-[10px] text-saluang-dark/60 mt-1 block">
+                  Email yang tercantum di halaman kontak dan footer website.
+                </span>
+              </div>
+
+              {/* Live WhatsApp Test Box */}
+              <div className="p-4 rounded-2xl bg-saluang-cream border-2 border-saluang-dark shadow-neo-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-saluang-dark/60">
+                    Pratinjau Tautan WhatsApp
+                  </span>
+                  <p className="font-mono text-xs font-black text-saluang-coral break-all">
+                    https://wa.me/{formData.phoneWhatsapp || '628...'}
+                  </p>
+                </div>
+                {formData.phoneWhatsapp && (
+                  <a
+                    href={`https://wa.me/${formData.phoneWhatsapp}?text=${encodeURIComponent('Halo Saluang Teknologi, tes pesan dari panel admin.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs border-2 border-saluang-dark shadow-neo-xs transition-all active:translate-x-0.5 active:translate-y-0.5 shrink-0"
+                  >
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <span>Uji Buka Chat WA</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
               </div>
             </div>
           )}

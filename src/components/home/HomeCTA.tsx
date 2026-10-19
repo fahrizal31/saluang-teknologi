@@ -4,7 +4,11 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { companyData } from '@/data/company';
 import { ArrowRight, MessageSquare, Sparkles, CheckCircle2 } from 'lucide-react';
 
-export const HomeCTA: React.FC = () => {
+interface HomeCTAProps {
+  whatsappNumber?: string;
+}
+
+export const HomeCTA: React.FC<HomeCTAProps> = ({ whatsappNumber }) => {
   return (
     <section className="pt-14 sm:pt-20 lg:pt-28 bg-saluang-marigold relative overflow-hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +33,7 @@ export const HomeCTA: React.FC = () => {
               Minta Penawaran Sekarang
             </Button>
             <Button
-              href={`https://wa.me/${companyData.phoneWhatsapp}`}
+              href={`https://wa.me/${whatsappNumber || companyData.phoneWhatsapp}`}
               isExternal
               variant="secondary"
               size="lg"

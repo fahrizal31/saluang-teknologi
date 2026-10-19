@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getServiceBySlug, getServices } from '@/lib/data/services';
+import { getCompanyInfo } from '@/lib/data/company';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -57,7 +58,10 @@ const iconMap = {
 };
 
 export default async function ServiceDetailPage({ params }: Props) {
-  const service = await getServiceBySlug(params.slug);
+  const [service, companyInfo] = await Promise.all([
+    getServiceBySlug(params.slug),
+    getCompanyInfo(),
+  ]);
 
   if (!service) {
     notFound();
@@ -111,7 +115,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               Konsultasikan Proyek {service.shortTitle}
             </Button>
             <Button
-              href={`https://wa.me/${companyData.phoneWhatsapp}?text=${encodeURIComponent(
+              href={`https://wa.me/${companyInfo.phoneWhatsapp || companyData.phoneWhatsapp}?text=${encodeURIComponent(
                 `Halo Saluang Teknologi, saya ingin berdiskusi mengenai layanan ${service.shortTitle}.`
               )}`}
               isExternal

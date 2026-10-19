@@ -96,7 +96,11 @@ const TOTAL_CHARS = CODE_LINES.reduce(
   0
 );
 
-export const HeroDiorama: React.FC = () => {
+interface HeroDioramaProps {
+  whatsappNumber?: string;
+}
+
+export const HeroDiorama: React.FC<HeroDioramaProps> = ({ whatsappNumber }) => {
   const [charCount, setCharCount] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -164,7 +168,7 @@ export const HeroDiorama: React.FC = () => {
                 Minta Penawaran
               </Button>
               <Button
-                href={`https://wa.me/${companyData.phoneWhatsapp}`}
+                href={`https://wa.me/${whatsappNumber || companyData.phoneWhatsapp}`}
                 isExternal
                 variant="secondary"
                 size="lg"

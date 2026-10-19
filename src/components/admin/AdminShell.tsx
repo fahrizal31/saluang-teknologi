@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { signOut } from '@/lib/auth-client';
 import {
   Inbox,
@@ -10,6 +10,7 @@ import {
   FolderGit2,
   Users,
   Settings,
+  Phone,
   ExternalLink,
   LogOut,
   Menu,
@@ -42,6 +43,8 @@ const STORAGE_COLLAPSED_KEY = 'saluang_admin_sidebar_collapsed';
 export function AdminShell({ children, adminUser }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams?.get('tab');
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState<boolean>(false);
@@ -120,6 +123,12 @@ export function AdminShell({ children, adminUser }: AdminShellProps) {
       icon: Users,
     },
     {
+      label: 'Kontak & WhatsApp',
+      shortLabel: 'Kontak',
+      href: '/admin/pengaturan?tab=contact',
+      icon: Phone,
+    },
+    {
       label: 'Pengaturan Perusahaan',
       shortLabel: 'Pengaturan',
       href: '/admin/pengaturan',
@@ -148,6 +157,12 @@ export function AdminShell({ children, adminUser }: AdminShellProps) {
   const isActive = (href: string) => {
     if (href === '/admin/leads') {
       return pathname === '/admin/leads' || pathname === '/admin';
+    }
+    if (href === '/admin/pengaturan?tab=contact') {
+      return pathname === '/admin/pengaturan' && currentTab === 'contact';
+    }
+    if (href === '/admin/pengaturan') {
+      return pathname === '/admin/pengaturan' && currentTab !== 'contact';
     }
     return pathname.startsWith(href);
   };

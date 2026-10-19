@@ -19,7 +19,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. Hero dengan Warna Pink, Tipografi Super, dan Ilustrasi Robot Isometrik */}
-      <HeroDiorama />
+      <HeroDiorama whatsappNumber={companyInfo.phoneWhatsapp} />
 
       {/* 2. Bagian Fitur Kuning & 4 Kartu Layanan Tactile (Sesuai Referensi Visual) */}
       <ServicesSection initialServices={services} />
@@ -31,7 +31,7 @@ export default async function HomePage() {
       <WhyChooseUs stats={companyInfo.stats} />
 
       {/* 5. Ajakan Bertindak (CTA) Utama */}
-      <HomeCTA />
+      <HomeCTA whatsappNumber={companyInfo.phoneWhatsapp} />
     </div>
   );
 }
