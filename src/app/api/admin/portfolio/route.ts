@@ -6,6 +6,7 @@ import { portfolioProjects, type NewPortfolioProject } from '@/lib/db/schema';
 import { asc, eq } from 'drizzle-orm';
 import crypto from 'crypto';
 import { clearPortfolioCache } from '@/lib/data/portfolio';
+import { revalidatePath } from 'next/cache';
 
 async function verifyAdmin() {
   const session = await auth.api.getSession({
@@ -115,6 +116,8 @@ export async function POST(req: NextRequest) {
     await db.insert(portfolioProjects).values(newProject);
 
     clearPortfolioCache();
+    revalidatePath('/portofolio');
+    revalidatePath('/');
 
     return NextResponse.json(
       { success: true, message: 'Proyek portofolio berhasil ditambahkan', data: newProject },

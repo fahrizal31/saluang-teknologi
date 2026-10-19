@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { services } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { clearServicesCache } from '@/lib/data/services';
+import { revalidatePath } from 'next/cache';
 
 async function verifyAdmin() {
   const session = await auth.api.getSession({
@@ -88,6 +89,8 @@ export async function PUT(
       .where(eq(services.id, id));
 
     clearServicesCache();
+    revalidatePath('/layanan');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: 'Layanan berhasil diperbarui' });
   } catch (error) {
@@ -123,6 +126,8 @@ export async function DELETE(
     await db.delete(services).where(eq(services.id, id));
 
     clearServicesCache();
+    revalidatePath('/layanan');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: 'Layanan berhasil dihapus' });
   } catch (error) {

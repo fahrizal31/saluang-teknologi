@@ -6,6 +6,7 @@ import { services, type NewService } from '@/lib/db/schema';
 import { asc, eq } from 'drizzle-orm';
 import crypto from 'crypto';
 import { clearServicesCache } from '@/lib/data/services';
+import { revalidatePath } from 'next/cache';
 
 /**
  * Helper verifikasi admin session
@@ -105,6 +106,9 @@ export async function POST(req: NextRequest) {
     await db.insert(services).values(newService);
 
     clearServicesCache();
+    revalidatePath('/layanan');
+    revalidatePath(`/layanan/${newService.slug}`);
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: 'Layanan berhasil ditambahkan', data: newService }, { status: 201 });
   } catch (error) {

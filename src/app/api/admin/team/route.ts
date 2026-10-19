@@ -6,6 +6,7 @@ import { teamMembers, type NewTeamMember } from '@/lib/db/schema';
 import { asc } from 'drizzle-orm';
 import crypto from 'crypto';
 import { clearTeamCache } from '@/lib/data/team';
+import { revalidatePath } from 'next/cache';
 
 async function verifyAdmin() {
   const session = await auth.api.getSession({
@@ -87,6 +88,8 @@ export async function POST(req: NextRequest) {
     await db.insert(teamMembers).values(newMember);
 
     clearTeamCache();
+    revalidatePath('/tentang');
+    revalidatePath('/');
 
     return NextResponse.json(
       { success: true, message: 'Anggota tim berhasil ditambahkan', data: newMember },

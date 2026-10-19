@@ -7,6 +7,9 @@ import { HomeCTA } from '@/components/home/HomeCTA';
 import { getServices } from '@/lib/data/services';
 import { getCompanyInfo } from '@/lib/data/company';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function HomePage() {
   const [services, companyInfo] = await Promise.all([
     getServices(),

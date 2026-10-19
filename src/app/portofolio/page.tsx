@@ -5,6 +5,9 @@ import { Badge } from '@/components/ui/Badge';
 import { HomeCTA } from '@/components/home/HomeCTA';
 import { getPortfolioProjects } from '@/lib/data/portfolio';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Portofolio Proyek & Studi Kasus Solusi Digital',
   description:

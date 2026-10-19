@@ -4,23 +4,14 @@ import { servicesData } from '@/data/services';
 import type { ServiceItem } from '@/types/service';
 import { eq, asc } from 'drizzle-orm';
 
-let cachedServices: { data: ServiceItem[]; timestamp: number } | null = null;
-const CACHE_TTL_MS = 60 * 1000;
-
 export function clearServicesCache() {
-  cachedServices = null;
+  // no-op, always fresh
 }
 
 /**
- * Mengambil seluruh katalog layanan digital.
- * Membaca dari cache memori server (60s) atau database MySQL via Drizzle ORM.
+ * Mengambil seluruh katalog layanan digital langsung dari database.
  */
 export async function getServices(): Promise<ServiceItem[]> {
-  const now = Date.now();
-  if (cachedServices && now - cachedServices.timestamp < CACHE_TTL_MS) {
-    return cachedServices.data;
-  }
-
   try {
     const rows = await db.select().from(services).orderBy(asc(services.displayOrder));
     if (rows && rows.length > 0) {
@@ -41,7 +32,6 @@ export async function getServices(): Promise<ServiceItem[]> {
         techStack: r.techStack,
         accentColor: r.accentColor,
       }));
-      cachedServices = { data: result, timestamp: now };
       return result;
     }
   } catch (err) {

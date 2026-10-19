@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { teamMembers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { clearTeamCache } from '@/lib/data/team';
+import { revalidatePath } from 'next/cache';
 
 async function verifyAdmin() {
   const session = await auth.api.getSession({
@@ -71,6 +72,8 @@ export async function PUT(
       .where(eq(teamMembers.id, id));
 
     clearTeamCache();
+    revalidatePath('/tentang');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: 'Data anggota tim berhasil diperbarui' });
   } catch (error) {
@@ -111,6 +114,8 @@ export async function DELETE(
     await db.delete(teamMembers).where(eq(teamMembers.id, id));
 
     clearTeamCache();
+    revalidatePath('/tentang');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: 'Anggota tim berhasil dihapus' });
   } catch (error) {

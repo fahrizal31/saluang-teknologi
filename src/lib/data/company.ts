@@ -4,26 +4,14 @@ import { companyData } from '@/data/company';
 import type { CompanyInfo } from '@/types/company';
 import { eq } from 'drizzle-orm';
 
-let cachedCompanyInfo: { data: CompanyInfo; timestamp: number } | null = null;
-const CACHE_TTL_MS = 60 * 1000; // 60 detik cache di memori server
-
-/**
- * Mengosongkan cache in-memory profil perusahaan (dipanggil saat admin menyimpan perubahan).
- */
 export function clearCompanyCache() {
-  cachedCompanyInfo = null;
+  // no-op, always fresh
 }
 
 /**
- * Mengambil profil & pengaturan lengkap perusahaan Saluang Teknologi.
- * Menggunakan in-memory cache 60s untuk respon instan tanpa round-trip berulang ke TiDB Cloud.
+ * Mengambil profil & pengaturan lengkap perusahaan Saluang Teknologi langsung dari database.
  */
 export async function getCompanyInfo(): Promise<CompanyInfo> {
-  const now = Date.now();
-  if (cachedCompanyInfo && now - cachedCompanyInfo.timestamp < CACHE_TTL_MS) {
-    return cachedCompanyInfo.data;
-  }
-
   try {
     const rows = await db
       .select()
@@ -76,7 +64,6 @@ export async function getCompanyInfo(): Promise<CompanyInfo> {
           },
         ],
       };
-      cachedCompanyInfo = { data: result, timestamp: now };
       return result;
     }
   } catch (err) {

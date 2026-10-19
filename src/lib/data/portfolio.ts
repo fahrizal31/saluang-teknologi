@@ -4,25 +4,17 @@ import { portfolioData } from '@/data/portfolio';
 import type { PortfolioProject, ServiceCategory } from '@/types/portfolio';
 import { eq, asc } from 'drizzle-orm';
 
-let cachedPortfolio: { data: PortfolioProject[]; timestamp: number } | null = null;
-const CACHE_TTL_MS = 60 * 1000;
-
 export function clearPortfolioCache() {
-  cachedPortfolio = null;
+  // no-op, always fresh
 }
 
 /**
- * Mengambil seluruh daftar proyek portofolio, opsional difilter berdasarkan kategori layanan.
- * Menggunakan in-memory cache 60s untuk respon instan.
+ * Mengambil seluruh daftar proyek portofolio langsung dari database.
  */
 export async function getPortfolioProjects(category?: 'all' | ServiceCategory): Promise<PortfolioProject[]> {
-  const now = Date.now();
   let allProjects: PortfolioProject[];
 
-  if (cachedPortfolio && now - cachedPortfolio.timestamp < CACHE_TTL_MS) {
-    allProjects = cachedPortfolio.data;
-  } else {
-    try {
+  try {
       const query = db.select().from(portfolioProjects).orderBy(asc(portfolioProjects.displayOrder));
       const rows = await query;
 
@@ -45,7 +37,6 @@ export async function getPortfolioProjects(category?: 'all' | ServiceCategory): 
           liveUrl: r.liveUrl || undefined,
           testimonial: r.testimonial || undefined,
         }));
-        cachedPortfolio = { data: allProjects, timestamp: now };
       } else {
         allProjects = portfolioData;
       }
@@ -53,7 +44,6 @@ export async function getPortfolioProjects(category?: 'all' | ServiceCategory): 
       console.warn('[Data:Portfolio] Gagal mengambil dari DB, menggunakan fallback data mock:', err instanceof Error ? err.message : err);
       allProjects = portfolioData;
     }
-  }
 
   if (category && category !== 'all') {
     return allProjects.filter((p) => p.category === category);

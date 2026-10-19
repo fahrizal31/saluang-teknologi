@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { companySettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { clearCompanyCache } from '@/lib/data/company';
+import { revalidatePath } from 'next/cache';
 
 async function verifyAdmin() {
   const session = await auth.api.getSession({
@@ -128,6 +129,9 @@ export async function PUT(req: NextRequest) {
     }
 
     clearCompanyCache();
+    revalidatePath('/');
+    revalidatePath('/tentang');
+    revalidatePath('/kontak');
 
     return NextResponse.json({
       success: true,

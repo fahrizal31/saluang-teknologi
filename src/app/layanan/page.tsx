@@ -7,6 +7,9 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Globe, Database, Smartphone, Cpu, ArrowRight, CheckCircle2, Layers } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Layanan Pengembangan Software & Solusi Digital',
   description:

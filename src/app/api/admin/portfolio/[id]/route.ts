@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { portfolioProjects } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { clearPortfolioCache } from '@/lib/data/portfolio';
+import { revalidatePath } from 'next/cache';
 
 async function verifyAdmin() {
   const session = await auth.api.getSession({
@@ -100,6 +101,8 @@ export async function PUT(
       .where(eq(portfolioProjects.id, id));
 
     clearPortfolioCache();
+    revalidatePath('/portofolio');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: 'Proyek portofolio berhasil diperbarui' });
   } catch (error) {
@@ -140,6 +143,8 @@ export async function DELETE(
     await db.delete(portfolioProjects).where(eq(portfolioProjects.id, id));
 
     clearPortfolioCache();
+    revalidatePath('/portofolio');
+    revalidatePath('/');
 
     return NextResponse.json({ success: true, message: 'Proyek berhasil dihapus' });
   } catch (error) {
