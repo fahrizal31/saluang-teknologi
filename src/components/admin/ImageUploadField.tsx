@@ -24,6 +24,74 @@ interface ImageUploadFieldProps {
   helperText?: string;
 }
 
+/**
+ * Optimasi gambar di browser sebelum dikirim ke server.
+ * Mengurangi ukuran gambar hingga 80-90% dengan tetap menjaga ketajaman visual.
+ */
+async function compressImageIfNeeded(file: File, maxDimension = 1600, quality = 0.85): Promise<File> {
+  // SVG, GIF animasi, atau file yang sudah kecil (< 500KB) tidak perlu dikompres
+  if (file.type === 'image/svg+xml' || file.type === 'image/gif' || file.size < 500 * 1024) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(file);
+      return;
+    }
+
+    const img = new window.Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target?.result as string;
+    };
+
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        } else {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      const targetType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+      canvas.toBlob(
+        (blob) => {
+          if (blob && blob.size < file.size) {
+            const compressedFile = new File([blob], file.name, {
+              type: targetType,
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        },
+        targetType,
+        quality
+      );
+    };
+
+    img.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
 export function ImageUploadField({
   label,
   value,
@@ -33,7 +101,7 @@ export function ImageUploadField({
   aspectRatio = 'video',
   helperText,
 }: ImageUploadFieldProps) {
-  // Mode default: jika value adalah /uploads/ atau kosong, tampilkan tab upload perangkat.
+  // Mode default: jika value adalah /uploads/ atau /api/uploads/ atau kosong, tampilkan tab upload perangkat.
   const [activeTab, setActiveTab] = useState<'device' | 'url'>(() => {
     if (value && value.startsWith('http')) return 'url';
     return 'device';
@@ -61,8 +129,11 @@ export function ImageUploadField({
     setIsUploading(true);
 
     try {
+      // Optimasi gambar di sisi klien untuk upload cepat & hemat storage
+      const fileToUpload = await compressImageIfNeeded(file);
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fileToUpload);
       formData.append('folder', folder);
 
       const res = await fetch('/api/admin/upload', {
@@ -128,7 +199,7 @@ export function ImageUploadField({
     }
   };
 
-  const isLocalUpload = value && value.startsWith('/uploads/');
+  const isLocalUpload = value && (value.startsWith('/uploads/') || value.startsWith('/api/uploads/'));
   const isExternalUrl = value && value.startsWith('http');
 
   const aspectRatioClass =
@@ -278,7 +349,7 @@ export function ImageUploadField({
             <div className="flex items-center gap-2 min-w-0">
               <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-saluang-dark shrink-0 shadow-neo-xs bg-saluang-yellow/40 text-saluang-dark">
                 <Check className="w-2.5 h-2.5 text-saluang-dark" />
-                {isLocalUpload ? 'Unggahan Perangkat Lokal' : isExternalUrl ? 'Tautan URL Online' : 'Gambar Aktif'}
+                {isLocalUpload ? 'Unggahan Perangkat' : isExternalUrl ? 'Tautan URL Online' : 'Gambar Aktif'}
               </span>
               <span className="text-[11px] font-mono font-bold text-saluang-dark/70 truncate">
                 {value}

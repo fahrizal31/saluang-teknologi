@@ -4,6 +4,8 @@ import { auth } from '@/lib/auth';
 import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
+import { db } from '@/lib/db';
+import { uploadedFiles } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -135,17 +137,41 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Lingkungan Lokal / VPS: Simpan ke folder public/uploads/
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // 2. Coba simpan ke disk lokal (untuk lingkungan dev lokal atau VPS dengan storage persisten)
+    let savedToDisk = false;
     try {
       const uploadDir = path.join(process.cwd(), 'public', 'uploads', safeFolder);
       await fs.mkdir(uploadDir, { recursive: true });
-
       const destinationPath = path.join(uploadDir, filename);
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
       await fs.writeFile(destinationPath, buffer);
+      savedToDisk = true;
+    } catch (fsError: any) {
+      // Jika disk read-only (misal Vercel Serverless EROFS), kita otomatis beralih ke penyimpanan DB TiDB Cloud
+      console.log(
+        '[API:Admin:Upload:POST] Filesystem read-only atau tidak writable, beralih ke TiDB Cloud storage...',
+        fsError?.code || fsError?.message
+      );
+    }
 
-      const publicUrl = `/uploads/${safeFolder}/${filename}`;
+    // 3. Simpan ke database TiDB Cloud (Penyimpanan Aman, Multi-Instance, Bebas EROFS)
+    try {
+      const base64Data = buffer.toString('base64');
+      const fileId = crypto.randomUUID();
+
+      await db.insert(uploadedFiles).values({
+        id: fileId,
+        folder: safeFolder,
+        filename,
+        mimeType: file.type,
+        fileSize: file.size,
+        data: base64Data,
+      });
+
+      // Gunakan endpoint dinamis /api/uploads/ yang dapat menyajikan gambar di mana pun aplikasi di-deploy
+      const publicUrl = `/api/uploads/${safeFolder}/${filename}`;
 
       return NextResponse.json({
         success: true,
@@ -153,20 +179,29 @@ export async function POST(req: NextRequest) {
         filename,
         size: file.size,
         mimeType: file.type,
-        message: 'Gambar berhasil diunggah dari perangkat!',
+        message: savedToDisk
+          ? 'Gambar berhasil diunggah ke penyimpanan perangkat & cloud!'
+          : 'Gambar berhasil diunggah dan disimpan ke cloud database!',
       });
-    } catch (fsError: any) {
-      // Jika berjalan di Vercel Serverless tanpa Vercel Blob, disk bersifat Read-Only (EROFS)
-      if (fsError?.code === 'EROFS' || fsError?.message?.includes('read-only')) {
-        return NextResponse.json(
-          {
-            error:
-              'Penyimpanan disk serverless Vercel bersifat Read-Only. Untuk upload dari perangkat di Vercel, cukup klik 1-kali tombol "Create Blob" di tab Storage dashboard Vercel, ATAU gunakan tab "Tautan URL Gambar" untuk memasukkan tautan gambar langsung.',
-          },
-          { status: 500 }
-        );
+    } catch (dbError: any) {
+      console.error('[API:Admin:Upload:POST] Error saat menyimpan ke database:', dbError);
+
+      // Jika penulisan ke disk lokal berhasil sebelumnya, tetap berikan URL publik lokal
+      if (savedToDisk) {
+        return NextResponse.json({
+          success: true,
+          url: `/uploads/${safeFolder}/${filename}`,
+          filename,
+          size: file.size,
+          mimeType: file.type,
+          message: 'Gambar berhasil diunggah ke disk lokal!',
+        });
       }
-      throw fsError;
+
+      return NextResponse.json(
+        { error: 'Gagal menyimpan file gambar ke penyimpanan cloud maupun disk: ' + (dbError?.message || '') },
+        { status: 500 }
+      );
     }
   } catch (error: any) {
     console.error('[API:Admin:Upload:POST] Error saat menyimpan file:', error);

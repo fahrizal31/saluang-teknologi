@@ -184,6 +184,22 @@ export const companySettings = mysqlTable('company_settings', {
 export type CompanySettingsModel = typeof companySettings.$inferSelect;
 export type NewCompanySettings = typeof companySettings.$inferInsert;
 
+// ============================================================================
+// 7. UPLOADED FILES (Penyimpanan Gambar Serverless / Database Fallback)
+// ============================================================================
+export const uploadedFiles = mysqlTable('uploaded_files', {
+  id: varchar('id', { length: 64 }).primaryKey(),
+  folder: varchar('folder', { length: 50 }).notNull(),
+  filename: varchar('filename', { length: 255 }).notNull().unique(),
+  mimeType: varchar('mime_type', { length: 100 }).notNull(),
+  fileSize: int('file_size').notNull(),
+  data: text('data').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export type UploadedFileModel = typeof uploadedFiles.$inferSelect;
+export type NewUploadedFile = typeof uploadedFiles.$inferInsert;
+
 export const authSchema = {
   user,
   session,
@@ -197,6 +213,8 @@ export const appSchema = {
   portfolioProjects,
   teamMembers,
   companySettings,
+  uploadedFiles,
   ...authSchema,
 };
+
 
