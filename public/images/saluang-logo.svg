@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" fill="none">
+  <!-- Saluang Teknologi Official Brand Logo -->
+  <g transform="translate(20, 20)">
+    <!-- CIRCULAR EMBLEM -->
+    <g transform="translate(0, 0)">
+      <!-- Sun -->
+      <circle cx="85" cy="115" r="32" fill="#F4B223" stroke="#3A1F3D" stroke-width="6"/>
+      <!-- Sun motion lines -->
+      <line x1="28" y1="120" x2="60" y2="120" stroke="#3A1F3D" stroke-width="6" stroke-linecap="round"/>
+      <line x1="40" y1="102" x2="68" y2="102" stroke="#3A1F3D" stroke-width="6" stroke-linecap="round"/>
+      <line x1="32" y1="138" x2="55" y2="138" stroke="#3A1F3D" stroke-width="6" stroke-linecap="round"/>
+
+      <!-- Mountains -->
+      <path d="M70 160 L105 105 L145 160 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M125 160 L145 130 L165 160 Z" fill="#7ED3C6" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+
+      <!-- Digital Circuit Trees / Antennas -->
+      <line x1="145" y1="140" x2="145" y2="40" stroke="#3A1F3D" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="145" cy="35" r="11" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="5"/>
+
+      <line x1="168" y1="145" x2="168" y2="65" stroke="#3A1F3D" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="168" cy="60" r="10" fill="#7ED3C6" stroke="#3A1F3D" stroke-width="5"/>
+
+      <line x1="188" y1="150" x2="188" y2="90" stroke="#3A1F3D" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="188" cy="85" r="9" fill="#F4B223" stroke="#3A1F3D" stroke-width="5"/>
+
+      <!-- Lower Crest / River Basin -->
+      <path d="M38 185 C38 238 80 270 135 270 C190 270 230 235 230 185 C230 175 195 180 160 190 C110 205 60 195 38 185 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="7" stroke-linejoin="round"/>
+
+      <!-- River Flow Lines & Circuit Nodes -->
+      <path d="M48 200 C80 235 150 205 218 200" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <circle cx="76" cy="225" r="8" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="4"/>
+      <circle cx="160" cy="215" r="8" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="4"/>
+
+      <!-- Leaping Saluang Fish -->
+      <!-- Tail -->
+      <path d="M30 178 C15 170 18 150 28 155 C38 160 48 168 55 174 Z" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <!-- Fin Bottom -->
+      <path d="M95 195 C98 215 110 215 112 198 Z" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="5"/>
+      <!-- Body -->
+      <path d="M35 172 C45 135 105 130 152 160 C135 195 75 200 35 172 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="7" stroke-linejoin="round"/>
+      <!-- Belly (White highlight) -->
+      <path d="M60 175 C90 158 135 165 148 162 C135 185 85 190 60 175 Z" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="5"/>
+      <!-- Fish Head & Eye -->
+      <circle cx="132" cy="162" r="4.5" fill="#3A1F3D"/>
+      <circle cx="133.5" cy="160.5" r="1.5" fill="#FFFFFF"/>
+      <path d="M125 152 C120 162 120 172 125 178" stroke="#3A1F3D" stroke-width="4" stroke-linecap="round" fill="none"/>
+    </g>
+
+    <!-- WORDMARK: SALUANG TEKNOLOGI -->
+    <g transform="translate(250, 85)">
+      <!-- S -->
+      <path d="M35 18 C35 6 25 0 16 0 C6 0 0 7 0 16 C0 32 35 26 35 44 C35 55 25 60 16 60 C5 60 0 52 0 40" stroke="#3A1F3D" stroke-width="12" stroke-linecap="round" fill="none"/>
+      
+      <!-- A (stylized chevron without crossbar: Λ) -->
+      <path d="M48 60 L68 4 L88 60" stroke="#3A1F3D" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      
+      <!-- L -->
+      <path d="M104 4 L104 60 L136 60" stroke="#3A1F3D" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      
+      <!-- U -->
+      <path d="M152 4 L152 42 C152 55 162 60 174 60 C186 60 196 55 196 42 L196 4" stroke="#3A1F3D" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      
+      <!-- A (stylized chevron: Λ) -->
+      <path d="M212 60 L232 4 L252 60" stroke="#3A1F3D" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      
+      <!-- N -->
+      <path d="M268 60 L268 4 L302 60 L302 4" stroke="#3A1F3D" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      
+      <!-- G -->
+      <path d="M355 20 C350 7 338 0 324 0 C306 0 294 14 294 30 C294 46 306 60 324 60 C344 60 356 48 356 34 L334 34" stroke="#3A1F3D" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <!-- TEKNOLOGI (sub-text) -->
+      <text x="3" y="105" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif" font-size="24" font-weight="800" fill="#3A1F3D" letter-spacing="14">
+        TEKNOLOGI
+      </text>
+    </g>
+  </g>
+</svg>

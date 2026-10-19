@@ -1,0 +1,49 @@
+{
+  "name": "saluang-teknologi",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint --no-cache",
+    "type-check": "tsc --noEmit",
+    "test": "tsx --test tests/run-all.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/lib/db/migrate.ts",
+    "db:seed": "tsx src/lib/db/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "admin:create": "tsx src/scripts/manage-admin.ts create",
+    "admin:reset-password": "tsx src/scripts/manage-admin.ts reset",
+    "admin:list": "tsx src/scripts/manage-admin.ts list"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "better-auth": "^1.7.10",
+    "clsx": "^2.1.1",
+    "dotenv": "^18.0.8",
+    "drizzle-orm": "^0.45.4",
+    "framer-motion": "^11.11.9",
+    "lucide-react": "^0.453.0",
+    "mysql2": "^3.24.6",
+    "next": "14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.18",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.3"
+  }
+}

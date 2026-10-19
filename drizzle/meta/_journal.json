@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1792134327729,
+      "tag": "0000_serious_lionheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1792374584410,
+      "tag": "0001_dear_bloodstorm",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1792375271630,
+      "tag": "0002_next_titanium_man",
+      "breakpoints": true
+    }
+  ]
+}

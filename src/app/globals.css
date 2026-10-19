@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-dark: #3A1F3D;
+  --color-teal: #2DBE9B;
+  --color-mint: #7ED3C6;
+  --color-coral: #EF5B4D;
+  --color-yellow: #F4B223;
+  --color-cream: #FFFDF9;
+  --color-sand: #FAF4EB;
+  --color-pink: #F9E2EB;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: #3A1F3D;
+  background-color: #FAF4EB;
+  min-height: 100vh;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+}
+
+/* Neo-Brutalist & Tactile Button Classes */
+.btn-neo {
+  border: 2px solid #3A1F3D;
+  box-shadow: 4px 4px 0px #3A1F3D;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-neo:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #3A1F3D;
+}
+
+.btn-neo:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #3A1F3D;
+}
+
+/* Tactile Card Classes */
+.card-neo {
+  background-color: #FFFDF9;
+  border: 2px solid #3A1F3D;
+  box-shadow: 6px 6px 0px #3A1F3D;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-neo-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 8px 8px 0px #3A1F3D;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

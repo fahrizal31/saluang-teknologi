@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 580" fill="none">
+  <!-- Isometric Tech Engine / Robot Illustration in Saluang Brand Colors -->
+  <g transform="translate(40, 20)">
+    <!-- Base Platform Shadow -->
+    <ellipse cx="210" cy="510" rx="180" ry="40" fill="#3A1F3D" opacity="0.15"/>
+    
+    <!-- Robot Tracks / Legs Bottom -->
+    <g transform="translate(100, 420)">
+      <!-- Left Track Base -->
+      <path d="M10 40 L60 15 L100 35 L50 60 Z" fill="#7ED3C6" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M10 40 L10 65 L50 85 L50 60 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M50 85 L100 60 L100 35 L50 60 Z" fill="#1FA080" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+
+      <!-- Right Track Base -->
+      <path d="M140 40 L190 15 L230 35 L180 60 Z" fill="#7ED3C6" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M140 40 L140 65 L180 85 L180 60 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M180 85 L230 60 L230 35 L180 60 Z" fill="#1FA080" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+
+      <!-- Leg Joints -->
+      <path d="M45 10 L85 0 L85 30 L45 40 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M155 10 L195 0 L195 30 L155 40 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Lower Chassis (Teal & Yellow) -->
+    <g transform="translate(110, 310)">
+      <!-- Front Face -->
+      <path d="M20 50 L120 100 L120 150 L20 100 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <!-- Right Side Face -->
+      <path d="M120 100 L200 60 L200 110 L120 150 Z" fill="#E5A315" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <!-- Top Face -->
+      <path d="M20 50 L100 10 L200 60 L120 100 Z" fill="#FDE178" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      
+      <!-- Exhaust / Ports -->
+      <circle cx="70" cy="95" r="14" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="4"/>
+      <circle cx="70" cy="95" r="7" fill="#3A1F3D"/>
+      <rect x="140" y="75" width="35" height="18" rx="4" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="4" transform="skewY(-15)"/>
+    </g>
+
+    <!-- Middle Body / Computer Core (Yellow & Pink Modules) -->
+    <g transform="translate(100, 150)">
+      <!-- Main Core Front -->
+      <path d="M30 60 L130 110 L130 200 L30 150 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <!-- Main Core Side -->
+      <path d="M130 110 L210 70 L210 160 L130 200 Z" fill="#E5A315" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <!-- Main Core Top -->
+      <path d="M30 60 L110 20 L210 70 L130 110 Z" fill="#FDE178" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+
+      <!-- Digital Screen on Front (Teal terminal screen) -->
+      <path d="M45 85 L115 120 L115 170 L45 135 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <!-- Terminal Scanlines -->
+      <line x1="55" y1="108" x2="105" y2="132" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+      <line x1="55" y1="122" x2="95" y2="142" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+      <line x1="55" y1="136" x2="105" y2="160" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- Side Module (Coral Pink Block) -->
+      <path d="M145 110 L195 85 L195 135 L145 160 Z" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M145 110 L170 95 L195 85" stroke="#3A1F3D" stroke-width="5" fill="none"/>
+    </g>
+
+    <!-- Top Head Unit / Scanner -->
+    <g transform="translate(125, 40)">
+      <!-- Head Front -->
+      <path d="M25 50 L95 85 L95 140 L25 105 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <!-- Head Side -->
+      <path d="M95 85 L155 55 L155 110 L95 140 Z" fill="#E5A315" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+      <!-- Head Top -->
+      <path d="M25 50 L85 20 L155 55 L95 85 Z" fill="#FDE178" stroke="#3A1F3D" stroke-width="6" stroke-linejoin="round"/>
+
+      <!-- Visor Eye (Teal Glow Visor) -->
+      <path d="M35 70 L85 95 L85 115 L35 90 Z" fill="#7ED3C6" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <line x1="45" y1="83" x2="75" y2="98" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+
+      <!-- Antenna Ears -->
+      <!-- Left Ear -->
+      <path d="M40 25 L65 12 L65 40 L40 52 Z" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <circle cx="52" cy="18" r="4" fill="#F4B223" stroke="#3A1F3D" stroke-width="2"/>
+      <!-- Right Ear -->
+      <path d="M110 32 L135 20 L135 48 L110 60 Z" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="5" stroke-linejoin="round"/>
+      <circle cx="122" cy="26" r="4" fill="#F4B223" stroke="#3A1F3D" stroke-width="2"/>
+    </g>
+
+    <!-- Illustrated People / Characters Around the Tech Machine -->
+    <!-- Engineer 1 (Left, standing on pedestal with tablet) -->
+    <g transform="translate(45, 410)">
+      <ellipse cx="25" cy="85" rx="20" ry="8" fill="#FDE178" stroke="#3A1F3D" stroke-width="3"/>
+      <!-- Body -->
+      <line x1="25" y1="80" x2="25" y2="40" stroke="#3A1F3D" stroke-width="4" stroke-linecap="round"/>
+      <!-- Shirt (White) -->
+      <rect x="15" y="42" width="20" height="25" rx="6" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="3"/>
+      <!-- Head -->
+      <circle cx="25" cy="30" r="8" fill="#FDE178" stroke="#3A1F3D" stroke-width="3"/>
+      <!-- Hair/Glasses -->
+      <path d="M18 28 Q25 22 32 28" stroke="#3A1F3D" stroke-width="4" fill="none"/>
+      <!-- Tablet (Teal) -->
+      <rect x="25" y="45" width="14" height="18" rx="2" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="2.5" transform="rotate(-15 25 45)"/>
+    </g>
+
+    <!-- Engineer 2 (Right, waving / pointing) -->
+    <g transform="translate(360, 430)">
+      <!-- Body -->
+      <line x1="15" y1="75" x2="15" y2="40" stroke="#3A1F3D" stroke-width="4" stroke-linecap="round"/>
+      <!-- Shirt (Coral) -->
+      <rect x="6" y="42" width="18" height="24" rx="5" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="3"/>
+      <!-- Head -->
+      <circle cx="15" cy="30" r="7.5" fill="#FDE178" stroke="#3A1F3D" stroke-width="3"/>
+      <!-- Arm pointing to robot -->
+      <line x1="8" y1="48" x2="-8" y2="38" stroke="#3A1F3D" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Little Floating Badges / Symbols (Star & Spark) -->
+    <g transform="translate(330, 110)">
+      <circle cx="25" cy="25" r="22" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="4"/>
+      <path d="M25 12 L28 20 L37 21 L30 27 L32 35 L25 30 L18 35 L20 27 L13 21 L22 20 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="2.5" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(60, 110)">
+      <circle cx="22" cy="22" r="18" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="4"/>
+      <path d="M22 9 L15 23 L22 23 L20 35 L29 20 L22 20 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="2.5" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+# File yang tidak perlu di-deploy ke Vercel
+.git
+.env*.local
+tests
+drizzle
+src/scripts
+*.md
+!README.md
