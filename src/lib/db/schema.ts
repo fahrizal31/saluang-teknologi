@@ -176,6 +176,8 @@ export const companySettings = mysqlTable('company_settings', {
   socialLinkedin: varchar('social_linkedin', { length: 500 }),
   socialInstagram: varchar('social_instagram', { length: 500 }),
   socialGithub: varchar('social_github', { length: 500 }),
+  telegramBotToken: varchar('telegram_bot_token', { length: 255 }),
+  telegramChatId: varchar('telegram_chat_id', { length: 100 }),
   stats: json('stats').$type<{ label: string; value: string; suffix?: string }[]>(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().onUpdateNow(),

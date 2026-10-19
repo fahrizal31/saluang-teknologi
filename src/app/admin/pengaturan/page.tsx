@@ -53,6 +53,8 @@ export default async function AdminCompanyPage() {
     socialInstagram: companyData.socials.find((s) => s.platform === 'instagram')?.url || null,
     socialGithub: companyData.socials.find((s) => s.platform === 'github')?.url || null,
     stats: companyData.stats,
+    telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || null,
+    telegramChatId: process.env.TELEGRAM_ADMIN_CHAT_ID || null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };

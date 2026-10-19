@@ -45,10 +45,32 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
   name = 'telegram';
 
   async sendLeadNotification(payload: NotificationPayload): Promise<boolean> {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    let token = process.env.TELEGRAM_BOT_TOKEN;
+    let chatId = process.env.TELEGRAM_CHAT_ID;
 
-    // Jika kredensial belum diisi atau masih placeholder, fallback ke log
+    // Prioritaskan konfigurasi dinamis yang tersimpan di basis data (company_settings)
+    try {
+      const { db } = await import('@/lib/db');
+      const { companySettings } = await import('@/lib/db/schema');
+      const { eq } = await import('drizzle-orm');
+      const rows = await db
+        .select({
+          token: companySettings.telegramBotToken,
+          chatId: companySettings.telegramChatId,
+        })
+        .from(companySettings)
+        .where(eq(companySettings.id, 'default'))
+        .limit(1);
+
+      if (rows && rows.length > 0) {
+        if (rows[0].token && rows[0].token.trim()) token = rows[0].token.trim();
+        if (rows[0].chatId && rows[0].chatId.trim()) chatId = rows[0].chatId.trim();
+      }
+    } catch (dbErr) {
+      console.warn('[Notification:Telegram] Gagal membaca config dari basis data, menggunakan env:', dbErr);
+    }
+
+    // Jika kredensial belum diisi atau masih placeholder, lewati pengiriman
     if (!token || !chatId || token.includes('placeholder') || chatId.includes('placeholder')) {
       console.log('[Notification:Telegram] Kredensial TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID belum dikonfigurasi, lewati pengiriman.');
       return false;

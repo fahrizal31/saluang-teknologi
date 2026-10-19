@@ -22,6 +22,7 @@ import {
   FileText,
   BarChart3,
   MessageCircle,
+  Send,
 } from 'lucide-react';
 import type { CompanySettingsModel } from '@/lib/db/schema';
 
@@ -32,21 +33,23 @@ interface AdminCompanyClientProps {
 export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const requestedTab = searchParams?.get('tab') as 'profile' | 'vision' | 'contact' | 'address' | 'socials' | 'stats' | null;
+  const requestedTab = searchParams?.get('tab') as 'profile' | 'vision' | 'contact' | 'address' | 'socials' | 'stats' | 'telegram' | null;
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'vision' | 'contact' | 'address' | 'socials' | 'stats'>(
-    requestedTab && ['profile', 'vision', 'contact', 'address', 'socials', 'stats'].includes(requestedTab)
+  const [activeTab, setActiveTab] = useState<'profile' | 'vision' | 'contact' | 'address' | 'socials' | 'stats' | 'telegram'>(
+    requestedTab && ['profile', 'vision', 'contact', 'address', 'socials', 'stats', 'telegram'].includes(requestedTab)
       ? requestedTab
       : 'profile'
   );
 
   useEffect(() => {
     const tab = searchParams?.get('tab');
-    if (tab && ['profile', 'vision', 'contact', 'address', 'socials', 'stats'].includes(tab)) {
+    if (tab && ['profile', 'vision', 'contact', 'address', 'socials', 'stats', 'telegram'].includes(tab)) {
       setActiveTab(tab as any);
     }
   }, [searchParams]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTestingTelegram, setIsTestingTelegram] = useState(false);
+  const [telegramTestFeedback, setTelegramTestFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Form State
@@ -70,6 +73,8 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
     socialLinkedin: initialSettings.socialLinkedin || '',
     socialInstagram: initialSettings.socialInstagram || '',
     socialGithub: initialSettings.socialGithub || '',
+    telegramBotToken: (initialSettings as any).telegramBotToken || '',
+    telegramChatId: (initialSettings as any).telegramChatId || '',
     stats: Array.isArray(initialSettings.stats) && initialSettings.stats.length > 0
       ? initialSettings.stats
       : [
@@ -123,6 +128,8 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
       socialLinkedin: formData.socialLinkedin,
       socialInstagram: formData.socialInstagram,
       socialGithub: formData.socialGithub,
+      telegramBotToken: formData.telegramBotToken,
+      telegramChatId: formData.telegramChatId,
       stats: formData.stats,
     };
 
@@ -140,7 +147,7 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
 
       setFeedback({
         type: 'success',
-        message: 'Pengaturan profil, kontak & statistik perusahaan berhasil diperbarui di database TiDB!',
+        message: 'Pengaturan profil, kontak, media sosial & Telegram bot berhasil diperbarui di database TiDB!',
       });
       router.refresh();
     } catch (err: any) {
@@ -153,6 +160,36 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
     }
   };
 
+  const handleTestTelegram = async () => {
+    setIsTestingTelegram(true);
+    setTelegramTestFeedback(null);
+    try {
+      const res = await fetch('/api/admin/telegram/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: formData.telegramBotToken,
+          chatId: formData.telegramChatId,
+        }),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.ok) {
+        throw new Error(result.error || 'Gagal mengirim pesan tes');
+      }
+      setTelegramTestFeedback({
+        type: 'success',
+        message: result.message || 'Pesan tes berhasil dikirim! Silakan periksa aplikasi Telegram Anda.',
+      });
+    } catch (err: any) {
+      setTelegramTestFeedback({
+        type: 'error',
+        message: err.message || 'Terjadi kesalahan saat menguji notifikasi Telegram.',
+      });
+    } finally {
+      setIsTestingTelegram(false);
+    }
+  };
+
   const tabs = [
     { id: 'profile', label: 'Profil Brand', icon: Building },
     { id: 'vision', label: 'Visi & Misi', icon: Target },
@@ -160,6 +197,7 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
     { id: 'address', label: 'Alamat Kantor', icon: MapPin },
     { id: 'socials', label: 'Media Sosial', icon: Share2 },
     { id: 'stats', label: 'Statistik Bisnis', icon: BarChart3 },
+    { id: 'telegram', label: 'Telegram Bot', icon: Send },
   ] as const;
 
   return (
@@ -698,6 +736,117 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 7: TELEGRAM BOT */}
+          {activeTab === 'telegram' && (
+            <div className="space-y-6 animate-fadeIn">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-black text-saluang-dark">
+                    Notifikasi Telegram Bot Otomatis
+                  </h3>
+                  <p className="text-xs text-saluang-dark/60 mt-0.5">
+                    Setiap kali calon klien mengajukan permohonan proyek melalui formulir kontak/konsultasi, bot akan mengirimkan pesan instan lengkap ke akun Telegram Anda.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleTestTelegram}
+                  isLoading={isTestingTelegram}
+                  leftIcon={<Send className="w-3.5 h-3.5" />}
+                  className="shrink-0"
+                >
+                  Uji Kirim Pesan Tes
+                </Button>
+              </div>
+
+              {telegramTestFeedback && (
+                <div
+                  className={`p-3.5 rounded-xl border-2 flex items-center justify-between text-xs font-bold shadow-neo-sm ${
+                    telegramTestFeedback.type === 'success'
+                      ? 'bg-saluang-teal/20 border-saluang-teal text-saluang-dark'
+                      : 'bg-saluang-coral/20 border-saluang-coral text-saluang-dark'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {telegramTestFeedback.type === 'success' ? (
+                      <Check className="w-4 h-4 text-saluang-teal shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-saluang-coral shrink-0" />
+                    )}
+                    <span>{telegramTestFeedback.message}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTelegramTestFeedback(null)}
+                    className="p-1 hover:opacity-70"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              <div className="p-4 bg-saluang-yellow/15 border-2 border-saluang-dark rounded-2xl text-xs space-y-2">
+                <div className="font-black text-saluang-dark flex items-center gap-2">
+                  <span>ℹ️ Panduan Penting Telegram Bot:</span>
+                </div>
+                <ol className="list-decimal pl-5 space-y-1 text-saluang-dark/80 font-medium leading-relaxed">
+                  <li>
+                    Buka bot Telegram Anda di aplikasi Telegram (misal cari nama bot Anda: <strong>@Wangtek_bot</strong>).
+                  </li>
+                  <li>
+                    Tekan tombol <strong>START</strong> atau kirim pesan <code>/start</code> ke bot tersebut. Telegram melarang bot mengirim pesan pertama kali ke pengguna sebelum pengguna memulai percakapan (START).
+                  </li>
+                  <li>
+                    Pastikan Chat ID Anda sudah benar (bisa didapatkan melalui bot seperti <code>@userinfobot</code>).
+                  </li>
+                  <li>
+                    Klik tombol <strong>Uji Kirim Pesan Tes</strong> di atas untuk memverifikasi apakah notifikasi sudah terkirim dengan sukses.
+                  </li>
+                </ol>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block mb-1.5 text-xs font-black text-saluang-dark uppercase tracking-wider">
+                    Telegram Bot Token
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.telegramBotToken}
+                    onChange={(e) =>
+                      setFormData({ ...formData, telegramBotToken: e.target.value })
+                    }
+                    placeholder="Contoh: 8817701248:AAEtvoTTsZzIZby7VTR1MpQEW-ais23NgVc"
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-saluang-dark bg-white font-mono text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-saluang-teal shadow-neo-sm"
+                  />
+                  <p className="text-[11px] text-saluang-dark/60 mt-1">
+                    Token rahasia bot yang didapatkan saat membuat bot melalui <strong>@BotFather</strong> di Telegram.
+                  </p>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block mb-1.5 text-xs font-black text-saluang-dark uppercase tracking-wider">
+                    Telegram Chat ID / User ID Penerima
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.telegramChatId}
+                    onChange={(e) =>
+                      setFormData({ ...formData, telegramChatId: e.target.value })
+                    }
+                    placeholder="Contoh: 1143585924 atau ID grup (-100xxxxxx)"
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-saluang-dark bg-white font-mono text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-saluang-teal shadow-neo-sm"
+                  />
+                  <p className="text-[11px] text-saluang-dark/60 mt-1">
+                    ID percakapan akun Telegram pribadi Anda atau ID grup/channel admin.
+                  </p>
+                </div>
               </div>
             </div>
           )}
