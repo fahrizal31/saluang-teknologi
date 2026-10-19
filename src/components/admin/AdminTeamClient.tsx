@@ -19,9 +19,11 @@ import {
   Image as ImageIcon,
   User,
   ExternalLink,
+  ZoomIn,
 } from 'lucide-react';
 import type { TeamMemberModel } from '@/lib/db/schema';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
 
 interface AdminTeamClientProps {
   initialMembers: TeamMemberModel[];
@@ -38,6 +40,12 @@ export function AdminTeamClient({ initialMembers }: AdminTeamClientProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<{
+    src: string;
+    alt: string;
+    title: string;
+    subtitle: string;
+  } | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -279,13 +287,33 @@ export function AdminTeamClient({ initialMembers }: AdminTeamClientProps) {
               <div>
                 {/* Header: Avatar & Category */}
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="w-16 h-16 rounded-2xl border-2 border-saluang-dark overflow-hidden bg-saluang-dark/10 shadow-neo-sm relative shrink-0">
+                  <div
+                    onClick={() => {
+                      if (member.avatarUrl) {
+                        setLightboxImage({
+                          src: member.avatarUrl,
+                          alt: member.name,
+                          title: member.name,
+                          subtitle: `${member.role} • ${getCategoryLabel(member.roleCategory)}`,
+                        });
+                      }
+                    }}
+                    className={`w-16 h-16 rounded-2xl border-2 border-saluang-dark overflow-hidden bg-saluang-dark/10 shadow-neo-sm relative shrink-0 group/avatar ${
+                      member.avatarUrl ? 'cursor-zoom-in' : ''
+                    }`}
+                    title={member.avatarUrl ? `Klik untuk memperbesar foto ${member.name}` : undefined}
+                  >
                     {member.avatarUrl ? (
-                      <img
-                        src={member.avatarUrl}
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        <img
+                          src={member.avatarUrl}
+                          alt={member.name}
+                          className="w-full h-full object-cover group-hover/avatar:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-saluang-dark/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center">
+                          <ZoomIn className="w-4 h-4 text-white" />
+                        </div>
+                      </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-saluang-dark/40">
                         <User className="w-8 h-8" />
@@ -542,6 +570,18 @@ export function AdminTeamClient({ initialMembers }: AdminTeamClientProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Full Image Lightbox Modal */}
+      {lightboxImage && (
+        <ImageLightbox
+          isOpen={Boolean(lightboxImage)}
+          onClose={() => setLightboxImage(null)}
+          src={lightboxImage.src}
+          alt={lightboxImage.alt}
+          title={lightboxImage.title}
+          subtitle={lightboxImage.subtitle}
+        />
       )}
     </div>
   );
