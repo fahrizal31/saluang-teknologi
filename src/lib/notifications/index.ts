@@ -38,6 +38,31 @@ export class MockNotificationAdapter implements NotificationAdapter {
 }
 
 /**
+ * Helper untuk mem-parsing satu atau banyak Telegram Chat ID (string koma/spasi atau JSON)
+ */
+export function parseTelegramChatIds(raw: string | null | undefined): string[] {
+  if (!raw || !raw.trim()) return [];
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => (typeof item === 'string' ? item : item?.id))
+          .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+          .map((id) => id.trim());
+      }
+    } catch {
+      // fallback
+    }
+  }
+  return trimmed
+    .split(/[\s,;]+/)
+    .map((id) => id.trim())
+    .filter(Boolean);
+}
+
+/**
  * Adapter 2: Telegram Notifier
  * Mengirimkan pesan instan terformat ke Telegram Bot & Grup Tim Saluang Teknologi.
  */
@@ -57,12 +82,17 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
         .select({
           token: companySettings.telegramBotToken,
           chatId: companySettings.telegramChatId,
+          enabled: companySettings.telegramEnabled,
         })
         .from(companySettings)
         .where(eq(companySettings.id, 'default'))
         .limit(1);
 
       if (rows && rows.length > 0) {
+        if (rows[0].enabled === false) {
+          console.log('[Notification:Telegram] Notifikasi Telegram dinonaktifkan di pengaturan database.');
+          return false;
+        }
         if (rows[0].token && rows[0].token.trim()) token = rows[0].token.trim();
         if (rows[0].chatId && rows[0].chatId.trim()) chatId = rows[0].chatId.trim();
       }
@@ -73,6 +103,13 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
     // Jika kredensial belum diisi atau masih placeholder, lewati pengiriman
     if (!token || !chatId || token.includes('placeholder') || chatId.includes('placeholder')) {
       console.log('[Notification:Telegram] Kredensial TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID belum dikonfigurasi, lewati pengiriman.');
+      return false;
+    }
+
+    // Mendukung multiple chat IDs (misal: "1143585924, -10012345678" atau format JSON)
+    const targetChatIds = parseTelegramChatIds(chatId);
+
+    if (targetChatIds.length === 0) {
       return false;
     }
 
@@ -91,29 +128,32 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
       `🕒 <i>${payload.createdAt.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB</i>`,
     ].join('\n');
 
-    try {
-      const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: 'HTML',
-          disable_web_page_preview: true,
-        }),
-      });
+    let atLeastOneSuccess = false;
+    for (const targetId of targetChatIds) {
+      try {
+        const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: targetId,
+            text: message,
+            parse_mode: 'HTML',
+            disable_web_page_preview: true,
+          }),
+        });
 
-      const data = await response.json();
-      if (!data.ok) {
-        console.error('[Notification:Telegram] Gagal mengirim pesan Telegram:', data.description);
-        return false;
+        const data = await response.json();
+        if (data.ok) {
+          atLeastOneSuccess = true;
+        } else {
+          console.error(`[Notification:Telegram] Gagal mengirim pesan ke ID ${targetId}:`, data.description);
+        }
+      } catch (error) {
+        console.error(`[Notification:Telegram] Gangguan jaringan saat menghubungi Telegram API untuk ID ${targetId}:`, error);
       }
-
-      return true;
-    } catch (error) {
-      console.error('[Notification:Telegram] Gangguan jaringan saat menghubungi Telegram API:', error);
-      return false;
     }
+
+    return atLeastOneSuccess;
   }
 }
 

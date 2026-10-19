@@ -79,6 +79,7 @@ export async function PUT(req: NextRequest) {
       socialGithub,
       telegramBotToken,
       telegramChatId,
+      telegramEnabled,
       stats,
     } = body;
 
@@ -110,6 +111,7 @@ export async function PUT(req: NextRequest) {
       socialGithub: socialGithub ? socialGithub.trim() : null,
       telegramBotToken: telegramBotToken ? telegramBotToken.trim() : null,
       telegramChatId: telegramChatId ? telegramChatId.trim() : null,
+      telegramEnabled: typeof telegramEnabled === 'boolean' ? telegramEnabled : true,
       stats: Array.isArray(stats) ? stats : null,
       updatedAt: new Date(),
     };
