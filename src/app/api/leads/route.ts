@@ -117,19 +117,21 @@ export async function POST(request: NextRequest) {
     });
 
     // 8. Kirim Notifikasi ke Tim (Adapter: Telegram / Email / Mock)
-    dispatchLeadNotification({
-      id: leadId,
-      fullName: sanitizedData.fullName,
-      email: sanitizedData.email,
-      whatsapp: sanitizedData.whatsapp,
-      companyName: sanitizedData.companyName,
-      serviceType: sanitizedData.serviceType,
-      budgetRange: sanitizedData.budgetRange,
-      projectDescription: sanitizedData.projectDescription,
-      createdAt: now,
-    }).catch((notifError) => {
+    try {
+      await dispatchLeadNotification({
+        id: leadId,
+        fullName: sanitizedData.fullName,
+        email: sanitizedData.email,
+        whatsapp: sanitizedData.whatsapp,
+        companyName: sanitizedData.companyName,
+        serviceType: sanitizedData.serviceType,
+        budgetRange: sanitizedData.budgetRange,
+        projectDescription: sanitizedData.projectDescription,
+        createdAt: now,
+      });
+    } catch (notifError) {
       console.error('[API:Leads] Kesalahan pengiriman notifikasi:', notifError);
-    });
+    }
 
     // 9. Respons Sukses Terstandar
     return NextResponse.json(

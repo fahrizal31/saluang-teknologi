@@ -89,7 +89,7 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
         .limit(1);
 
       if (rows && rows.length > 0) {
-        if (rows[0].enabled === false) {
+        if (rows[0].enabled === false || rows[0].enabled === (0 as any)) {
           console.log('[Notification:Telegram] Notifikasi Telegram dinonaktifkan di pengaturan database.');
           return false;
         }
@@ -110,8 +110,11 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
     const targetChatIds = parseTelegramChatIds(chatId);
 
     if (targetChatIds.length === 0) {
+      console.warn('[Notification:Telegram] Tidak ada Chat ID yang valid untuk dikirim.');
       return false;
     }
+
+    console.log(`[Notification:Telegram] Memulai pengiriman notifikasi lead ke ${targetChatIds.length} penerima Telegram...`);
 
     const message = [
       '🚀 <b>Permintaan Proyek Baru Masuk!</b>',
@@ -145,11 +148,12 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
         const data = await response.json();
         if (data.ok) {
           atLeastOneSuccess = true;
+          console.log(`[Notification:Telegram] ✅ Sukses mengirim notifikasi lead ke Telegram Chat ID: ${targetId}`);
         } else {
-          console.error(`[Notification:Telegram] Gagal mengirim pesan ke ID ${targetId}:`, data.description);
+          console.error(`[Notification:Telegram] ❌ Gagal mengirim pesan ke ID ${targetId}:`, data.description);
         }
       } catch (error) {
-        console.error(`[Notification:Telegram] Gangguan jaringan saat menghubungi Telegram API untuk ID ${targetId}:`, error);
+        console.error(`[Notification:Telegram] ❌ Gangguan jaringan saat menghubungi Telegram API untuk ID ${targetId}:`, error);
       }
     }
 
@@ -179,8 +183,9 @@ export class EmailNotificationAdapter implements NotificationAdapter {
   }
 }
 
-function escapeHtml(text: string): string {
-  return text
+function escapeHtml(text: string | null | undefined): string {
+  if (!text) return '';
+  return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -195,38 +200,25 @@ function cleanWaNumber(phone: string): string {
 }
 
 /**
- * Mendapatkan daftar adapter aktif berdasarkan environment variable
+ * Mendapatkan daftar adapter aktif berdasarkan environment variable & basis data
  */
 export function getActiveNotificationAdapters(): NotificationAdapter[] {
-  const channels = (process.env.NOTIFICATION_CHANNELS || 'mock')
+  const channels = (process.env.NOTIFICATION_CHANNELS || 'telegram,mock')
     .toLowerCase()
     .split(',')
     .map((c) => c.trim());
 
   const adapters: NotificationAdapter[] = [];
 
+  // Telegram adapter selalu disertakan karena konfigurasi token dan Chat ID disimpan secara dinamis di database
+  adapters.push(new TelegramNotificationAdapter());
+
   if (channels.includes('mock') || channels.includes('all')) {
     adapters.push(new MockNotificationAdapter());
   }
 
-  const hasTelegramConfig = Boolean(
-    process.env.TELEGRAM_BOT_TOKEN &&
-    process.env.TELEGRAM_CHAT_ID &&
-    !process.env.TELEGRAM_BOT_TOKEN.includes('placeholder') &&
-    !process.env.TELEGRAM_CHAT_ID.includes('placeholder')
-  );
-
-  if (channels.includes('telegram') || channels.includes('all') || hasTelegramConfig) {
-    adapters.push(new TelegramNotificationAdapter());
-  }
-
   if (channels.includes('email') || channels.includes('all')) {
     adapters.push(new EmailNotificationAdapter());
-  }
-
-  // Jika tidak ada yang cocok, gunakan mock sebagai fallback aman
-  if (adapters.length === 0) {
-    adapters.push(new MockNotificationAdapter());
   }
 
   return adapters;
