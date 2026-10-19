@@ -147,7 +147,14 @@ export function getActiveNotificationAdapters(): NotificationAdapter[] {
     adapters.push(new MockNotificationAdapter());
   }
 
-  if (channels.includes('telegram') || channels.includes('all')) {
+  const hasTelegramConfig = Boolean(
+    process.env.TELEGRAM_BOT_TOKEN &&
+    process.env.TELEGRAM_CHAT_ID &&
+    !process.env.TELEGRAM_BOT_TOKEN.includes('placeholder') &&
+    !process.env.TELEGRAM_CHAT_ID.includes('placeholder')
+  );
+
+  if (channels.includes('telegram') || channels.includes('all') || hasTelegramConfig) {
     adapters.push(new TelegramNotificationAdapter());
   }
 
