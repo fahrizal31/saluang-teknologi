@@ -14,6 +14,10 @@ import {
   X,
   Quote,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
 
 const categories: { label: string; value: 'all' | ServiceCategory }[] = [
@@ -33,8 +37,10 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
 }) => {
   const [mounted, setMounted] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<'all' | ServiceCategory>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [activeModalProject, setActiveModalProject] = useState<PortfolioProject | null>(null);
 
+  const PROJECTS_PER_PAGE = 6;
   const projects = initialProjects && initialProjects.length > 0 ? initialProjects : portfolioData;
 
   useEffect(() => {
@@ -45,6 +51,28 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
     selectedCategory === 'all'
       ? projects
       : projects.filter((p) => p.category === selectedCategory);
+
+  const totalProjects = filteredProjects.length;
+  const totalPages = Math.max(1, Math.ceil(totalProjects / PROJECTS_PER_PAGE));
+  const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (validCurrentPage - 1) * PROJECTS_PER_PAGE;
+  const endIndex = Math.min(startIndex + PROJECTS_PER_PAGE, totalProjects);
+  const paginatedProjects = filteredProjects.slice(startIndex, endIndex);
+
+  const handleCategorySelect = (catValue: 'all' | ServiceCategory) => {
+    setSelectedCategory(catValue);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    if (typeof window !== 'undefined') {
+      const el = document.getElementById('portfolio-grid-top');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   const handleCloseModal = () => {
     setActiveModalProject(null);
@@ -63,6 +91,11 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
       const matched = projects.find((p) => p.slug === hash || p.id === hash);
       if (matched) {
         setSelectedCategory('all');
+        const matchedIndex = projects.findIndex((p) => p.slug === hash || p.id === hash);
+        if (matchedIndex !== -1) {
+          const targetPage = Math.floor(matchedIndex / PROJECTS_PER_PAGE) + 1;
+          setCurrentPage(targetPage);
+        }
         setActiveModalProject(matched);
         setTimeout(() => {
           const el = document.getElementById(matched.slug);
@@ -97,6 +130,8 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
 
   return (
     <>
+      <div id="portfolio-grid-top" className="scroll-mt-24" />
+
       {/* Category Filter Tabs */}
       <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-12">
         {categories.map((cat) => {
@@ -104,7 +139,7 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
           return (
             <button
               key={cat.value}
-              onClick={() => setSelectedCategory(cat.value)}
+              onClick={() => handleCategorySelect(cat.value)}
               className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-2xl text-xs sm:text-sm font-extrabold border-2 border-saluang-dark transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saluang-dark ${
                 isActive
                   ? 'bg-saluang-coral text-white shadow-neo active:shadow-neo-sm'
@@ -123,7 +158,7 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
       >
         <AnimatePresence>
-          {filteredProjects.map((project) => (
+          {paginatedProjects.map((project) => (
             <motion.div
               key={project.id}
               id={project.slug}
@@ -205,6 +240,79 @@ export const PortfolioClient: React.FC<PortfolioClientProps> = ({
           ))}
         </AnimatePresence>
       </motion.div>
+
+      {/* Pagination Controls on Public Portfolio */}
+      {totalPages > 1 && (
+        <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-center justify-between gap-4 bg-saluang-cream p-4 sm:p-5 rounded-3xl border-2 border-saluang-dark shadow-neo">
+          <p className="text-xs sm:text-sm font-bold text-saluang-dark">
+            Menampilkan <span className="font-black text-saluang-coral">{startIndex + 1} - {endIndex}</span> dari{' '}
+            <span className="font-black text-saluang-teal">{totalProjects}</span> proyek unggulan
+          </p>
+
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={() => handlePageChange(1)}
+              disabled={validCurrentPage <= 1}
+              className="p-2 sm:p-2.5 rounded-2xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark shadow-neo-xs transition-all disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Halaman Pertama"
+              aria-label="Halaman Pertama"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePageChange(validCurrentPage - 1)}
+              disabled={validCurrentPage <= 1}
+              className="px-3 sm:px-4 py-2 rounded-2xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark text-xs font-black shadow-neo-xs active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              aria-label="Halaman Sebelumnya"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Sebelumnya</span>
+            </button>
+
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => handlePageChange(page)}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl text-xs sm:text-sm font-black border-2 border-saluang-dark transition-all cursor-pointer flex items-center justify-center ${
+                    validCurrentPage === page
+                      ? 'bg-saluang-coral text-white shadow-neo scale-105'
+                      : 'bg-white hover:bg-saluang-yellow/50 text-saluang-dark shadow-neo-xs'
+                  }`}
+                  aria-label={`Halaman ${page}`}
+                  aria-current={validCurrentPage === page ? 'page' : undefined}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handlePageChange(validCurrentPage + 1)}
+              disabled={validCurrentPage >= totalPages}
+              className="px-3 sm:px-4 py-2 rounded-2xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark text-xs font-black shadow-neo-xs active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              aria-label="Halaman Selanjutnya"
+            >
+              <span className="hidden sm:inline">Selanjutnya</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePageChange(totalPages)}
+              disabled={validCurrentPage >= totalPages}
+              className="p-2 sm:p-2.5 rounded-2xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark shadow-neo-xs transition-all disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Halaman Terakhir"
+              aria-label="Halaman Terakhir"
+            >
+              <ChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Project Detail Modal rendered via Portal to document.body */}
       {mounted && activeModalProject && createPortal(

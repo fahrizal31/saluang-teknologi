@@ -20,6 +20,10 @@ import {
   Image as ImageIcon,
   Building,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
 import type { PortfolioProjectModel } from '@/lib/db/schema';
 import { ImageUploadField } from '@/components/admin/ImageUploadField';
@@ -33,6 +37,8 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
   const [projectsList, setProjectsList] = useState<PortfolioProjectModel[]>(initialProjects);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(6);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<PortfolioProjectModel | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -231,6 +237,15 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
     return matchesSearch && matchesCategory;
   });
 
+  // Kalkulasi Pagination
+  const totalItems = filteredProjects.length;
+  const effectivePageSize = pageSize === -1 ? totalItems : pageSize;
+  const totalPages = Math.max(1, Math.ceil(totalItems / (effectivePageSize || 1)));
+  const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (validCurrentPage - 1) * effectivePageSize;
+  const endIndex = Math.min(startIndex + effectivePageSize, totalItems);
+  const paginatedProjects = pageSize === -1 ? filteredProjects : filteredProjects.slice(startIndex, endIndex);
+
   return (
     <div className="p-3.5 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-16">
       {/* Top Header */}
@@ -299,13 +314,19 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
                 type="text"
                 placeholder="Cari judul, klien, atau slug..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full pl-10 pr-4 py-2 text-xs font-semibold rounded-lg border-2 border-saluang-dark bg-white focus:outline-none focus:ring-2 focus:ring-saluang-teal/30"
               />
             </div>
             <select
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full sm:w-48 px-3 py-2 text-xs font-bold rounded-lg border-2 border-saluang-dark bg-white focus:outline-none"
             >
               <option value="all">Semua Kategori</option>
@@ -317,7 +338,7 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
             </select>
           </div>
           <span className="text-xs font-bold text-saluang-dark/60">
-            Menampilkan {filteredProjects.length} dari {projectsList.length} Proyek
+            Menampilkan {totalItems > 0 ? startIndex + 1 : 0} - {endIndex} dari {totalItems} Proyek
           </span>
         </div>
       </GlassCard>
@@ -331,7 +352,7 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
         </GlassCard>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
+          {paginatedProjects.map((project) => (
             <GlassCard
               key={project.id}
               className="border-2 border-saluang-dark shadow-neo flex flex-col p-0 overflow-hidden hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
@@ -465,6 +486,127 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
               </div>
             </GlassCard>
           ))}
+        </div>
+      )}
+
+      {/* Pagination Controls Bar */}
+      {totalItems > 0 && totalPages > 1 && (
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-saluang-cream p-3.5 sm:p-4 rounded-2xl border-2 border-saluang-dark shadow-neo-sm">
+          {/* Page Size Selector */}
+          <div className="flex items-center gap-2 text-xs font-bold text-saluang-dark">
+            <span className="text-saluang-dark/60">Tampilkan per halaman:</span>
+            <div className="inline-flex items-center gap-1">
+              {[6, 9, 12].map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-black border transition-all cursor-pointer ${
+                    pageSize === size
+                      ? 'bg-saluang-dark text-saluang-cream border-saluang-dark shadow-neo-xs'
+                      : 'bg-white hover:bg-saluang-sand border-saluang-dark/30 text-saluang-dark'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setPageSize(-1);
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-black border transition-all cursor-pointer ${
+                  pageSize === -1
+                    ? 'bg-saluang-dark text-saluang-cream border-saluang-dark shadow-neo-xs'
+                    : 'bg-white hover:bg-saluang-sand border-saluang-dark/30 text-saluang-dark'
+                }`}
+              >
+                Semua
+              </button>
+            </div>
+          </div>
+
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              disabled={validCurrentPage <= 1}
+              onClick={() => setCurrentPage(1)}
+              className="p-2 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark shadow-neo-xs transition-all disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Halaman Pertama"
+              aria-label="Halaman Pertama"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              disabled={validCurrentPage <= 1}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              className="px-3 py-1.5 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark text-xs font-black shadow-neo-xs transition-all flex items-center gap-1 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Halaman Sebelumnya"
+              aria-label="Halaman Sebelumnya"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Sebelumnya</span>
+            </button>
+
+            {/* Page number buttons */}
+            <div className="flex items-center gap-1 px-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => {
+                  if (totalPages <= 5) return true;
+                  return Math.abs(p - validCurrentPage) <= 1 || p === 1 || p === totalPages;
+                })
+                .map((p, idx, arr) => {
+                  const prev = arr[idx - 1];
+                  const showEllipsis = prev && p - prev > 1;
+                  return (
+                    <React.Fragment key={p}>
+                      {showEllipsis && (
+                        <span className="px-1 text-xs font-bold text-saluang-dark/40">...</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage(p)}
+                        className={`w-8 h-8 rounded-xl text-xs font-black border-2 transition-all cursor-pointer flex items-center justify-center ${
+                          validCurrentPage === p
+                            ? 'bg-saluang-teal text-white border-saluang-dark shadow-neo-xs scale-105'
+                            : 'bg-white hover:bg-saluang-sand text-saluang-dark border-saluang-dark/40'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    </React.Fragment>
+                  );
+                })}
+            </div>
+
+            <button
+              type="button"
+              disabled={validCurrentPage >= totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              className="px-3 py-1.5 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark text-xs font-black shadow-neo-xs transition-all flex items-center gap-1 disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Halaman Selanjutnya"
+              aria-label="Halaman Selanjutnya"
+            >
+              <span className="hidden sm:inline">Selanjutnya</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              disabled={validCurrentPage >= totalPages}
+              onClick={() => setCurrentPage(totalPages)}
+              className="p-2 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark shadow-neo-xs transition-all disabled:opacity-35 disabled:cursor-not-allowed cursor-pointer"
+              title="Halaman Terakhir"
+              aria-label="Halaman Terakhir"
+            >
+              <ChevronsRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 
