@@ -11,6 +11,7 @@ export interface ImageLightboxProps {
   alt: string;
   title?: string;
   subtitle?: string;
+  showExternalLink?: boolean;
 }
 
 export function ImageLightbox({
@@ -20,6 +21,7 @@ export function ImageLightbox({
   alt,
   title,
   subtitle,
+  showExternalLink = false,
 }: ImageLightboxProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -71,17 +73,19 @@ export function ImageLightbox({
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Tombol Buka Tab Baru */}
-            <a
-              href={src}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark text-xs font-bold shadow-neo-xs transition-all"
-              title="Buka file gambar asli di tab baru"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Tab Baru</span>
-            </a>
+            {/* Tombol Buka Tab Baru (Hanya tampil jika showExternalLink bernilai true) */}
+            {showExternalLink && (
+              <a
+                href={src}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand text-saluang-dark text-xs font-bold shadow-neo-xs transition-all"
+                title="Buka file gambar asli di tab baru"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Tab Baru</span>
+              </a>
+            )}
 
             {/* Tombol Tutup */}
             <button
