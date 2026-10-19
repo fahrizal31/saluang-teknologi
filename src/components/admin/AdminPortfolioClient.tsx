@@ -408,22 +408,20 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="pt-4 border-t border-saluang-dark/10 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 min-w-0">
+                {/* Actions Footer */}
+                <div className="pt-3.5 border-t border-saluang-dark/10 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
                     {/* Link ke Halaman Portofolio Publik */}
                     <a
                       href={`/portofolio#${project.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group/btn inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand shadow-neo-xs transition-all cursor-pointer shrink-0"
+                      className="group/btn inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border-2 border-saluang-dark bg-white hover:bg-saluang-sand shadow-neo-xs transition-all cursor-pointer min-w-0 flex-1 overflow-hidden"
                       title={`Buka Halaman Portofolio Publik: /portofolio#${project.slug}`}
                     >
-                      <div className="p-0.5 text-saluang-dark group-hover/btn:text-saluang-teal transition-colors">
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="text-[11px] font-mono font-bold text-saluang-dark/80 group-hover/btn:text-saluang-teal group-hover/btn:underline truncate max-w-[130px] sm:max-w-[190px]">
-                        /portofolio#{project.slug}
+                      <ExternalLink className="w-3.5 h-3.5 text-saluang-dark group-hover/btn:text-saluang-teal transition-colors shrink-0" />
+                      <span className="text-[11px] font-mono font-bold text-saluang-dark/80 group-hover/btn:text-saluang-teal group-hover/btn:underline truncate">
+                        #{project.slug}
                       </span>
                     </a>
 
@@ -433,15 +431,17 @@ export function AdminPortfolioClient({ initialProjects }: AdminPortfolioClientPr
                         href={project.liveUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-2 py-1.5 rounded-xl border border-saluang-dark/40 bg-saluang-teal/15 hover:bg-saluang-teal hover:text-white text-saluang-dark text-[10px] font-black uppercase tracking-wider transition-colors shrink-0"
+                        className="inline-flex items-center gap-1 px-2 py-1.5 rounded-xl border border-saluang-dark/40 bg-saluang-teal/15 hover:bg-saluang-teal hover:text-white text-saluang-dark text-[10px] font-black uppercase tracking-wider transition-colors shrink-0 whitespace-nowrap"
                         title={`Kunjungi Website Asli Klien: ${project.liveUrl}`}
                       >
-                        Web Klien ↗
+                        <span>Live</span>
+                        <ExternalLink className="w-2.5 h-2.5" />
                       </a>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  {/* Tombol Aksi Edit & Hapus */}
+                  <div className="flex items-center gap-1.5 shrink-0 ml-auto">
                     <button
                       type="button"
                       onClick={() => handleOpenEdit(project)}
