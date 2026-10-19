@@ -48,9 +48,14 @@ function LoginFormContent() {
       // Berhasil login, arahkan ke dashboard admin
       router.push(callbackUrl);
       router.refresh();
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
-      setErrorMessage('Terjadi gangguan saat memproses masuk. Silakan coba kembali.');
+      const detail = err instanceof Error ? err.message : '';
+      setErrorMessage(
+        detail && detail !== 'Failed to fetch'
+          ? `Terjadi gangguan: ${detail}`
+          : 'Gagal menghubungi server auth. Pastikan Environment Variables (DATABASE_URL & BETTER_AUTH_URL) sudah diset di dashboard hosting.'
+      );
       setIsLoading(false);
     }
   };

@@ -13,7 +13,17 @@ export const auth = betterAuth({
       verification,
     },
   }),
-  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    'http://localhost:3000',
+  trustedOrigins: [
+    'http://localhost:3000',
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
+    ...(process.env.NEXT_PUBLIC_SITE_URL ? [process.env.NEXT_PUBLIC_SITE_URL] : []),
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+  ],
   secret: process.env.BETTER_AUTH_SECRET || 'saluang_teknologi_better_auth_secret_dev_32char_key',
   emailAndPassword: {
     enabled: true,
