@@ -7,12 +7,13 @@ import { signIn } from '@/lib/auth-client';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Eye, EyeOff, Clock } from 'lucide-react';
 
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/admin/leads';
+  const reason = searchParams.get('reason');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -86,6 +87,15 @@ function LoginFormContent() {
       {/* Card Form */}
       <GlassCard className="p-6 md:p-8 border-2 border-saluang-dark shadow-neo">
         <form onSubmit={handleSubmit} className="space-y-5">
+          {reason === 'timeout' && (
+            <div className="p-3.5 bg-saluang-yellow/25 border-2 border-saluang-dark rounded-xl flex items-start gap-2.5 text-saluang-dark text-xs md:text-sm font-bold shadow-neo-xs">
+              <Clock className="w-4 h-4 flex-shrink-0 mt-0.5 text-saluang-coral" />
+              <span>
+                Sesi login Anda telah berakhir karena tidak ada pergerakan selama 1 jam. Silakan masuk kembali demi keamanan akun.
+              </span>
+            </div>
+          )}
+
           {errorMessage && (
             <div className="p-3.5 bg-saluang-coral/10 border-2 border-saluang-coral rounded-xl flex items-start gap-2.5 text-saluang-coral text-xs md:text-sm font-semibold">
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />

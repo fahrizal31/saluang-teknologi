@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { signOut } from '@/lib/auth-client';
+import { AdminIdleTimeout } from './AdminIdleTimeout';
 import {
   Inbox,
   Briefcase,
@@ -176,6 +177,9 @@ export function AdminShell({ children, adminUser }: AdminShellProps) {
 
   return (
     <div className="h-screen h-[100dvh] w-full overflow-hidden bg-saluang-sand text-saluang-dark flex flex-col md:flex-row">
+      {/* Deteksi Otomatis: Logout jika tidak ada aktivitas selama 1 jam */}
+      <AdminIdleTimeout />
+
       {/* ============================================================ */}
       {/* 1. DESKTOP SIDEBAR (Bisa Diperkecil / Collapsible, Tetap Diam) */}
       {/* ============================================================ */}

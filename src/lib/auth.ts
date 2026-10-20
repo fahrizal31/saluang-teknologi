@@ -42,6 +42,8 @@ export const auth = betterAuth({
     },
   },
   session: {
+    expiresIn: 60 * 60, // 1 jam (3600 detik) masa berlaku sesi
+    updateAge: 60 * 5, // perbarui masa berlaku sesi setiap 5 menit jika ada aktivitas
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60, // 5 menit
