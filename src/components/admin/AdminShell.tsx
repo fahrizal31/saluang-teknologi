@@ -31,6 +31,7 @@ interface AdminShellProps {
     name: string;
     email: string;
   };
+  sessionLastActiveAt?: number;
 }
 
 interface NavItem {
@@ -42,7 +43,7 @@ interface NavItem {
 
 const STORAGE_COLLAPSED_KEY = 'saluang_admin_sidebar_collapsed';
 
-export function AdminShell({ children, adminUser }: AdminShellProps) {
+export function AdminShell({ children, adminUser, sessionLastActiveAt }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -178,7 +179,7 @@ export function AdminShell({ children, adminUser }: AdminShellProps) {
   return (
     <div className="h-screen h-[100dvh] w-full overflow-hidden bg-saluang-sand text-saluang-dark flex flex-col md:flex-row">
       {/* Deteksi Otomatis: Logout jika tidak ada aktivitas selama 1 jam */}
-      <AdminIdleTimeout />
+      <AdminIdleTimeout sessionLastActiveAt={sessionLastActiveAt} />
 
       {/* ============================================================ */}
       {/* 1. DESKTOP SIDEBAR (Bisa Diperkecil / Collapsible, Tetap Diam) */}

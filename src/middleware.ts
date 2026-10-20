@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
   // Cek cookie session Better Auth
   const sessionCookie =
@@ -10,6 +10,24 @@ export function middleware(request: NextRequest) {
 
   const isAuthenticated = !!sessionCookie?.value;
 
+  // Jika membuka halaman /login
+  if (pathname.startsWith('/login')) {
+    // Jika diarahkan karena sesi timeout atau logout, hapus cookie dan biarkan tetap di halaman login
+    if (searchParams.has('reason') || searchParams.has('logout')) {
+      const response = NextResponse.next();
+      response.cookies.delete('better-auth.session_token');
+      response.cookies.delete('__Secure-better-auth.session_token');
+      return response;
+    }
+
+    // Jika sudah login aktif tanpa alasan logout/timeout, arahkan langsung ke dashboard
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL('/admin/leads', request.url));
+    }
+
+    return NextResponse.next();
+  }
+
   // Proteksi rute admin: /admin/*
   if (pathname.startsWith('/admin')) {
     if (!isAuthenticated) {
@@ -17,11 +35,6 @@ export function middleware(request: NextRequest) {
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }
-  }
-
-  // Jika sudah login dan membuka /login, alihkan langsung ke dashboard
-  if (pathname.startsWith('/login') && isAuthenticated) {
-    return NextResponse.redirect(new URL('/admin/leads', request.url));
   }
 
   return NextResponse.next();

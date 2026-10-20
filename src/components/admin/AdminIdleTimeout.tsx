@@ -11,7 +11,11 @@ const ONE_HOUR_MS = 60 * 60 * 1000; // 1 Jam = 3.600.000 ms
 const WARNING_THRESHOLD_MS = 2 * 60 * 1000; // Munculkan peringatan 2 menit sebelum logout (di menit ke-58)
 const THROTTLE_INTERVAL_MS = 15 * 1000; // Catat pergerakan maksimal sekali tiap 15 detik
 
-export function AdminIdleTimeout() {
+interface AdminIdleTimeoutProps {
+  sessionLastActiveAt?: number;
+}
+
+export function AdminIdleTimeout({ sessionLastActiveAt }: AdminIdleTimeoutProps) {
   const router = useRouter();
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(120);
@@ -65,20 +69,26 @@ export function AdminIdleTimeout() {
 
   // Setup Activity Listeners & Cross-Tab Sync
   useEffect(() => {
-    // 1. Inisialisasi awal timestamp
+    // 1. Inisialisasi awal timestamp dari localStorage atau server timestamp
     try {
       const stored = localStorage.getItem(STORAGE_LAST_ACTIVITY_KEY);
       const parsed = stored ? Number(stored) : NaN;
+
+      let initialTimestamp = Date.now();
       if (!isNaN(parsed) && parsed > 0) {
-        // Jika sudah lewat 1 jam sejak aktivitas terakhir sebelumnya
-        if (Date.now() - parsed >= ONE_HOUR_MS) {
-          performLogout();
-          return;
-        }
-        lastActivityRef.current = parsed;
-      } else {
-        localStorage.setItem(STORAGE_LAST_ACTIVITY_KEY, String(Date.now()));
+        initialTimestamp = parsed;
+      } else if (sessionLastActiveAt && sessionLastActiveAt > 0) {
+        initialTimestamp = sessionLastActiveAt;
       }
+
+      // Jika sudah lewat 1 jam sejak aktivitas terakhir sebelumnya
+      if (Date.now() - initialTimestamp >= ONE_HOUR_MS) {
+        performLogout();
+        return;
+      }
+
+      lastActivityRef.current = initialTimestamp;
+      localStorage.setItem(STORAGE_LAST_ACTIVITY_KEY, String(initialTimestamp));
     } catch {
       // Fallback
     }

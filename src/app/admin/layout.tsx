@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { auth } from '@/lib/auth';
+import { getVerifiedAdminSession } from '@/lib/auth-session';
 import { AdminShell } from '@/components/admin/AdminShell';
 
 export const dynamic = 'force-dynamic';
@@ -19,12 +19,14 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Verifikasi authoritatif sesi admin via Better Auth
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  // Verifikasi authoritatif sesi admin via server & evaluasi idle timeout 1 jam
+  const sessionResult = await getVerifiedAdminSession(await headers());
 
-  if (!session?.user) {
+  if (sessionResult.status === 'timeout') {
+    redirect('/login?reason=timeout');
+  }
+
+  if (sessionResult.status === 'unauthenticated' || !sessionResult.user) {
     redirect('/login?callbackUrl=/admin');
   }
 
@@ -32,9 +34,10 @@ export default async function AdminLayout({
     <Suspense fallback={<div className="min-h-screen bg-saluang-sand" />}>
       <AdminShell
         adminUser={{
-          name: session.user.name || 'Administrator',
-          email: session.user.email,
+          name: sessionResult.user.name || 'Administrator',
+          email: sessionResult.user.email,
         }}
+        sessionLastActiveAt={sessionResult.lastActiveTimestamp}
       >
         {children}
       </AdminShell>
