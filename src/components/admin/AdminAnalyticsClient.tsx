@@ -166,7 +166,7 @@ export function AdminAnalyticsClient({ adminUser }: AdminAnalyticsClientProps) {
       const past = new Date(dateStr).getTime();
       const diffSec = Math.floor((now - past) / 1000);
 
-      if (diffSec < 15) return 'Baru saja';
+      if (isNaN(diffSec) || diffSec < 15) return 'Baru saja';
       if (diffSec < 60) return `${diffSec} detik lalu`;
       const diffMin = Math.floor(diffSec / 60);
       if (diffMin < 60) return `${diffMin} menit lalu`;
@@ -367,11 +367,23 @@ export function AdminAnalyticsClient({ adminUser }: AdminAnalyticsClientProps) {
               {data?.kpis.uniqueVisitorsPeriod ?? 0}
             </span>
             <p className="text-[11px] sm:text-xs font-semibold text-saluang-dark/60 mt-0.5">
-              Hari ini:{' '}
-              <span className="text-saluang-dark font-black">
-                {data?.kpis.uniqueVisitorsToday ?? 0}
-              </span>{' '}
-              IP unik
+              {period === 'today' ? (
+                <>
+                  Total sepanjang waktu:{' '}
+                  <span className="text-saluang-dark font-black">
+                    {data?.kpis.totalAllTimeVisitors ?? 0}
+                  </span>{' '}
+                  IP
+                </>
+              ) : (
+                <>
+                  Hari ini:{' '}
+                  <span className="text-saluang-dark font-black">
+                    {data?.kpis.uniqueVisitorsToday ?? 0}
+                  </span>{' '}
+                  IP unik
+                </>
+              )}
             </p>
           </div>
         </GlassCard>
@@ -391,11 +403,23 @@ export function AdminAnalyticsClient({ adminUser }: AdminAnalyticsClientProps) {
               {data?.kpis.pageviewsPeriod ?? 0}
             </span>
             <p className="text-[11px] sm:text-xs font-semibold text-saluang-dark/60 mt-0.5">
-              Hari ini:{' '}
-              <span className="text-saluang-dark font-black">
-                {data?.kpis.pageviewsToday ?? 0}
-              </span>{' '}
-              tayangan
+              {period === 'today' ? (
+                <>
+                  Total sepanjang waktu:{' '}
+                  <span className="text-saluang-dark font-black">
+                    {data?.kpis.totalAllTimePageviews ?? 0}
+                  </span>{' '}
+                  tayangan
+                </>
+              ) : (
+                <>
+                  Hari ini:{' '}
+                  <span className="text-saluang-dark font-black">
+                    {data?.kpis.pageviewsToday ?? 0}
+                  </span>{' '}
+                  tayangan
+                </>
+              )}
             </p>
           </div>
         </GlassCard>
@@ -538,10 +562,12 @@ export function AdminAnalyticsClient({ adminUser }: AdminAnalyticsClientProps) {
           <div>
             <h2 className="text-base sm:text-lg font-black text-saluang-dark flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-saluang-teal" />
-              Tren Kunjungan Harian
+              {period === 'today' ? 'Tren Kunjungan Hari Ini (Per Jam)' : 'Tren Kunjungan Harian'}
             </h2>
             <p className="text-xs font-semibold text-saluang-dark/70 mt-0.5">
-              Perbandingan total tayangan halaman (*pageviews*) dan pengunjung unik per hari
+              {period === 'today'
+                ? 'Distribusi total tayangan halaman (*pageviews*) dan pengunjung unik per jam hari ini (WIB)'
+                : 'Perbandingan total tayangan halaman (*pageviews*) dan pengunjung unik per hari'}
             </p>
           </div>
 
@@ -559,21 +585,30 @@ export function AdminAnalyticsClient({ adminUser }: AdminAnalyticsClientProps) {
 
         {data?.trend && data.trend.length > 0 ? (
           <div className="w-full pt-4">
-            <div className="h-60 flex items-end gap-2 md:gap-4 border-b-2 border-saluang-dark pb-2">
+            <div className="h-60 flex items-end gap-1.5 sm:gap-2 md:gap-3 border-b-2 border-saluang-dark pb-2">
               {data.trend.map((item, index) => {
-                const pvHeight = Math.max(8, Math.round((item.pageviews / maxTrendValue) * 100));
-                const uvHeight = Math.max(8, Math.round((item.uniqueVisitors / maxTrendValue) * 100));
+                const pvHeight = item.pageviews > 0 ? Math.max(8, Math.round((item.pageviews / maxTrendValue) * 100)) : 0;
+                const uvHeight = item.uniqueVisitors > 0 ? Math.max(8, Math.round((item.uniqueVisitors / maxTrendValue) * 100)) : 0;
 
-                const formattedDate = new Date(item.date).toLocaleDateString('id-ID', {
-                  day: 'numeric',
-                  month: 'short',
-                });
+                let formattedDate = item.date;
+                if (!item.date.includes(':')) {
+                  const [year, month, day] = item.date.split('-').map(Number);
+                  if (year && month && day) {
+                    const d = new Date(year, month - 1, day);
+                    formattedDate = d.toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'short',
+                    });
+                  }
+                }
 
                 return (
-                  <div key={index} className="flex-1 flex flex-col items-center group relative h-full justify-end">
+                  <div key={index} className="flex-1 flex flex-col items-center group relative h-full justify-end min-w-0">
                     {/* Tooltip Hover */}
                     <div className="absolute -top-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-saluang-cream border-2 border-saluang-dark rounded-xl p-2.5 text-xs text-saluang-dark shadow-neo z-20 whitespace-nowrap font-bold">
-                      <p className="font-black text-saluang-dark border-b border-saluang-dark/20 pb-1 mb-1">{formattedDate}</p>
+                      <p className="font-black text-saluang-dark border-b border-saluang-dark/20 pb-1 mb-1">
+                        {period === 'today' ? `Pukul ${formattedDate} WIB` : formattedDate}
+                      </p>
                       <p className="text-saluang-coral">Tayangan: {item.pageviews}</p>
                       <p className="text-saluang-teal">Unik: {item.uniqueVisitors}</p>
                     </div>
@@ -582,17 +617,25 @@ export function AdminAnalyticsClient({ adminUser }: AdminAnalyticsClientProps) {
                     <div className="w-full max-w-[32px] flex items-end justify-center gap-1 h-full">
                       <div
                         style={{ height: `${pvHeight}%` }}
-                        className="w-1/2 bg-saluang-coral border-2 border-saluang-dark rounded-t-md hover:opacity-85 shadow-neo-xs transition-all"
+                        className={`w-1/2 transition-all ${
+                          item.pageviews > 0
+                            ? 'bg-saluang-coral border-2 border-saluang-dark rounded-t-md hover:opacity-85 shadow-neo-xs'
+                            : 'bg-transparent'
+                        }`}
                         title={`Tayangan: ${item.pageviews}`}
                       />
                       <div
                         style={{ height: `${uvHeight}%` }}
-                        className="w-1/2 bg-saluang-teal border-2 border-saluang-dark rounded-t-md hover:opacity-85 shadow-neo-xs transition-all"
+                        className={`w-1/2 transition-all ${
+                          item.uniqueVisitors > 0
+                            ? 'bg-saluang-teal border-2 border-saluang-dark rounded-t-md hover:opacity-85 shadow-neo-xs'
+                            : 'bg-transparent'
+                        }`}
                         title={`Pengunjung Unik: ${item.uniqueVisitors}`}
                       />
                     </div>
 
-                    <span className="text-[10px] sm:text-xs font-bold text-saluang-dark/70 mt-2 truncate max-w-full">
+                    <span className="text-[9px] sm:text-[10px] md:text-xs font-bold text-saluang-dark/70 mt-2 truncate max-w-full">
                       {formattedDate}
                     </span>
                   </div>

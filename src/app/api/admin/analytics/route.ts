@@ -23,15 +23,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || '7d';
 
-    let dateCondition = '`created_at` >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
-    let sessionDateCondition = '`last_active_at` >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
+    // Titik awal hari ini dalam WIB (UTC+7) dikonversikan ke UTC untuk perbandingan database yang akurat
+    const wibTodayStartSql =
+      "DATE_SUB(DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 7 HOUR), '%Y-%m-%d 00:00:00'), INTERVAL 7 HOUR)";
+
+    let dateCondition = `\`created_at\` >= DATE_SUB(${wibTodayStartSql}, INTERVAL 6 DAY)`;
+    let sessionDateCondition = `\`last_active_at\` >= DATE_SUB(${wibTodayStartSql}, INTERVAL 6 DAY)`;
 
     if (period === 'today') {
-      dateCondition = '`created_at` >= CURDATE()';
-      sessionDateCondition = '`last_active_at` >= CURDATE()';
+      dateCondition = `\`created_at\` >= ${wibTodayStartSql}`;
+      sessionDateCondition = `\`last_active_at\` >= ${wibTodayStartSql}`;
     } else if (period === '30d') {
-      dateCondition = '`created_at` >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
-      sessionDateCondition = '`last_active_at` >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+      dateCondition = `\`created_at\` >= DATE_SUB(${wibTodayStartSql}, INTERVAL 29 DAY)`;
+      sessionDateCondition = `\`last_active_at\` >= DATE_SUB(${wibTodayStartSql}, INTERVAL 29 DAY)`;
     } else if (period === 'all') {
       dateCondition = '1=1';
       sessionDateCondition = '1=1';
@@ -65,13 +69,13 @@ export async function GET(request: NextRequest) {
         LIMIT 20`
       );
 
-      // 3. KPI Hari Ini (Today)
+      // 3. KPI Hari Ini (Today) dihitung berdasarkan kalender WIB
       const [todayRows]: any = await conn.query(
         `SELECT 
           COUNT(*) as pageviews,
           COUNT(DISTINCT \`ip_address\`) as uniqueVisitors
         FROM \`visitor_pageviews\`
-        WHERE \`created_at\` >= CURDATE()`
+        WHERE \`created_at\` >= ${wibTodayStartSql}`
       );
       const pageviewsToday = Number(todayRows[0]?.pageviews || 0);
       const uniqueVisitorsToday = Number(todayRows[0]?.uniqueVisitors || 0);
@@ -97,17 +101,86 @@ export async function GET(request: NextRequest) {
       const totalAllTimePageviews = Number(allTimeRows[0]?.totalPageviews || 0);
       const totalAllTimeVisitors = Number(allTimeRows[0]?.totalUniqueVisitors || 0);
 
-      // 6. Grafik Tren Kunjungan Harian (Daily Trend)
-      const [trendRows]: any = await conn.query(
-        `SELECT 
-          DATE_FORMAT(\`created_at\`, '%Y-%m-%d') as date,
-          COUNT(*) as pageviews,
-          COUNT(DISTINCT \`ip_address\`) as uniqueVisitors
-        FROM \`visitor_pageviews\`
-        WHERE ${dateCondition}
-        GROUP BY DATE_FORMAT(\`created_at\`, '%Y-%m-%d')
-        ORDER BY date ASC`
-      );
+      // 6. Grafik Tren Kunjungan Harian (Daily/Hourly Trend dalam WIB)
+      const trend: { date: string; pageviews: number; uniqueVisitors: number }[] = [];
+
+      if (period === 'today') {
+        // Tren per jam untuk Hari Ini (00:00 - 23:00 WIB)
+        const [hourlyRows]: any = await conn.query(
+          `SELECT 
+            DATE_FORMAT(DATE_ADD(\`created_at\`,\ INTERVAL 7 HOUR), '%H:00') as hourLabel,
+            COUNT(*) as pageviews,
+            COUNT(DISTINCT \`ip_address\`) as uniqueVisitors
+          FROM \`visitor_pageviews\`
+          WHERE ${dateCondition}
+          GROUP BY hourLabel
+          ORDER BY hourLabel ASC`
+        );
+
+        const hourlyMap = new Map<string, { pageviews: number; uniqueVisitors: number }>();
+        for (const row of hourlyRows) {
+          hourlyMap.set(row.hourLabel, {
+            pageviews: Number(row.pageviews),
+            uniqueVisitors: Number(row.uniqueVisitors),
+          });
+        }
+
+        const currentHourWib = new Date(Date.now() + 7 * 60 * 60 * 1000).getUTCHours();
+        const maxHour = Math.max(currentHourWib, 11);
+        for (let h = 0; h <= maxHour; h++) {
+          const hourStr = `${String(h).padStart(2, '0')}:00`;
+          const existing = hourlyMap.get(hourStr) || { pageviews: 0, uniqueVisitors: 0 };
+          trend.push({
+            date: hourStr,
+            pageviews: existing.pageviews,
+            uniqueVisitors: existing.uniqueVisitors,
+          });
+        }
+      } else {
+        // Tren Harian (7 Hari, 30 Hari, atau Semua) dikelompokkan tanggal WIB
+        const [trendRows]: any = await conn.query(
+          `SELECT 
+            DATE_FORMAT(DATE_ADD(\`created_at\`, INTERVAL 7 HOUR), '%Y-%m-%d') as date,
+            COUNT(*) as pageviews,
+            COUNT(DISTINCT \`ip_address\`) as uniqueVisitors
+          FROM \`visitor_pageviews\`
+          WHERE ${dateCondition}
+          GROUP BY date
+          ORDER BY date ASC`
+        );
+
+        const trendMap = new Map<string, { pageviews: number; uniqueVisitors: number }>();
+        for (const row of trendRows) {
+          trendMap.set(row.date, {
+            pageviews: Number(row.pageviews),
+            uniqueVisitors: Number(row.uniqueVisitors),
+          });
+        }
+
+        if (period === '7d' || period === '30d') {
+          const numDays = period === '7d' ? 7 : 30;
+          const nowWibMs = Date.now() + 7 * 60 * 60 * 1000;
+          for (let i = numDays - 1; i >= 0; i--) {
+            const dayTime = new Date(nowWibMs - i * 24 * 60 * 60 * 1000);
+            const dateStr = dayTime.toISOString().slice(0, 10);
+            const existing = trendMap.get(dateStr) || { pageviews: 0, uniqueVisitors: 0 };
+            trend.push({
+              date: dateStr,
+              pageviews: existing.pageviews,
+              uniqueVisitors: existing.uniqueVisitors,
+            });
+          }
+        } else {
+          // 'all': gunakan semua tanggal yang ada
+          for (const row of trendRows) {
+            trend.push({
+              date: row.date,
+              pageviews: Number(row.pageviews),
+              uniqueVisitors: Number(row.uniqueVisitors),
+            });
+          }
+        }
+      }
 
       // 7. Distribusi Negara Teratas (Top Countries)
       const [countryRows]: any = await conn.query(
@@ -207,11 +280,7 @@ export async function GET(request: NextRequest) {
             totalAllTimePageviews,
             totalAllTimeVisitors,
           },
-          trend: trendRows.map((t: any) => ({
-            date: t.date,
-            pageviews: Number(t.pageviews),
-            uniqueVisitors: Number(t.uniqueVisitors),
-          })),
+          trend,
           topCountries,
           topCities: cityRows.map((c: any) => ({
             city: c.city,
