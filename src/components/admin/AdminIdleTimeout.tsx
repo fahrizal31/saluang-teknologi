@@ -189,7 +189,7 @@ export function AdminIdleTimeout({ sessionLastActiveAt }: AdminIdleTimeoutProps)
       window.removeEventListener('focus', handleVisibilityChange);
       window.clearInterval(intervalId);
     };
-  }, [performLogout, recordActivity]);
+  }, [performLogout, recordActivity, sessionLastActiveAt]);
 
   if (!showWarningModal) return null;
 
