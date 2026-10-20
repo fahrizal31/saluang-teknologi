@@ -43,17 +43,19 @@ export interface TelegramRecipientItem {
 }
 
 export function parseInitialRecipients(raw: string | null | undefined): TelegramRecipientItem[] {
-  if (!raw || !raw.trim()) return [];
-  const trimmed = raw.trim();
+  if (!raw) return [];
+  const trimmed = String(raw).trim();
+  if (!trimmed) return [];
+
   if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
         return parsed
-          .filter((item) => item && (typeof item === 'string' || typeof item?.id === 'string'))
+          .filter((item) => item && (typeof item === 'string' || typeof item === 'number' || item?.id != null))
           .map((item, idx) => {
-            if (typeof item === 'string') {
-              return { id: item.trim(), label: `Penerima ${idx + 1}` };
+            if (typeof item === 'string' || typeof item === 'number') {
+              return { id: String(item).trim(), label: `Penerima ${idx + 1}` };
             }
             return {
               id: String(item.id).trim(),
@@ -1317,6 +1319,19 @@ export function AdminCompanyClient({ initialSettings }: AdminCompanyClientProps)
                   <p className="text-[10px] text-saluang-dark/60">
                     💡 Tips: Jika ID berupa angka positif (misal: <code>1143585924</code>), sistem menandainya sebagai <strong>Akun Pribadi</strong>. Jika diawali tanda minus (misal: <code>-100...</code>), sistem menandainya sebagai <strong>Grup/Channel</strong>.
                   </p>
+                  <div className="p-3 bg-saluang-yellow/20 rounded-xl border border-saluang-yellow text-[11px] text-saluang-dark space-y-1">
+                    <p className="font-bold flex items-center gap-1.5 text-saluang-coral">
+                      ⚠️ Penting agar notifikasi bisa masuk ke ID baru:
+                    </p>
+                    <ul className="list-disc pl-4 space-y-0.5 text-saluang-dark/80">
+                      <li>
+                        <strong>Wajib klik START:</strong> Pemilik akun ID baru harus membuka bot <strong>{botInfo?.username ? `@${botInfo.username}` : 'Telegram Anda'}</strong> dan menekan tombol <strong>START (/start)</strong> di Telegram. Bot dilarang mengirim pesan ke pengguna yang belum pernah menekan START.
+                      </li>
+                      <li>
+                        <strong>Jangan lupa Simpan:</strong> Setelah mengklik tombol <strong>&quot;+ Tambah&quot;</strong>, pastikan Anda juga menekan tombol <strong>&quot;Simpan Perubahan&quot;</strong> di bagian paling bawah formulir agar perubahan tersimpan ke basis data.
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 

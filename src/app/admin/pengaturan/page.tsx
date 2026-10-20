@@ -54,7 +54,7 @@ export default async function AdminCompanyPage() {
     socialGithub: companyData.socials.find((s) => s.platform === 'github')?.url || null,
     stats: companyData.stats,
     telegramBotToken: process.env.TELEGRAM_BOT_TOKEN || null,
-    telegramChatId: process.env.TELEGRAM_ADMIN_CHAT_ID || null,
+    telegramChatId: process.env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_ADMIN_CHAT_ID || null,
     telegramEnabled: true,
     createdAt: new Date(),
     updatedAt: new Date(),

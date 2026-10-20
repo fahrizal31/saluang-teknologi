@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { companySettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { parseTelegramChatIds } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     let token = body.token?.trim();
-    let chatId = body.chatId?.trim();
+    let chatId = body.chatId ? String(body.chatId).trim() : '';
     const customMessage = body.customMessage?.trim();
 
     // Jika tidak dikirim via body, baca dari database
@@ -35,9 +36,13 @@ export async function POST(req: NextRequest) {
 
       if (rows.length > 0) {
         token = token || rows[0].token?.trim();
-        chatId = chatId || rows[0].chatId?.trim();
+        chatId = chatId || rows[0].chatId?.trim() || '';
       }
     }
+
+    // Fallback ke .env jika belum terisi
+    token = token || process.env.TELEGRAM_BOT_TOKEN?.trim();
+    chatId = chatId || process.env.TELEGRAM_CHAT_ID?.trim() || '';
 
     if (!token) {
       return NextResponse.json(
@@ -53,15 +58,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Parse target chat IDs (bisa koma, spasi, titik koma, baris baru)
-    const targetChatIds = chatId
-      .split(/[\s,;]+/)
-      .map((id: string) => id.trim())
-      .filter(Boolean);
+    // Parse target chat IDs (mendukung format JSON array, koma, spasi, baris baru)
+    const targetChatIds = parseTelegramChatIds(chatId);
 
     if (targetChatIds.length === 0) {
       return NextResponse.json(
-        { ok: false, error: 'Format Chat ID tidak valid.' },
+        { ok: false, error: 'Format Chat ID tidak valid atau kosong.' },
         { status: 400 }
       );
     }
@@ -102,8 +104,8 @@ export async function POST(req: NextRequest) {
 
         if (!data.ok) {
           let errText = data.description || 'Gagal mengirim pesan';
-          if (errText.includes('chat not found')) {
-            errText = 'Pengguna belum menekan tombol START (/start) pada bot di Telegram.';
+          if (errText.includes('chat not found') || errText.includes("can't initiate conversation")) {
+            errText = 'Pengguna belum pernah membuka bot dan menekan tombol START (/start) di Telegram.';
           } else if (errText.includes('bot was blocked by the user')) {
             errText = 'Bot telah diblokir oleh pengguna.';
           } else if (errText.includes('Forbidden')) {

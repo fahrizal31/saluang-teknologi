@@ -38,28 +38,43 @@ export class MockNotificationAdapter implements NotificationAdapter {
 }
 
 /**
- * Helper untuk mem-parsing satu atau banyak Telegram Chat ID (string koma/spasi atau JSON)
+ * Helper untuk mem-parsing satu atau banyak Telegram Chat ID (string koma/spasi/baris-baru atau JSON array)
  */
 export function parseTelegramChatIds(raw: string | null | undefined): string[] {
-  if (!raw || !raw.trim()) return [];
-  const trimmed = raw.trim();
+  if (!raw) return [];
+  const trimmed = String(raw).trim();
+  if (!trimmed) return [];
+
+  // Jika berupa format JSON array
   if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
-        return parsed
-          .map((item) => (typeof item === 'string' ? item : item?.id))
-          .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
-          .map((id) => id.trim());
+        const ids = parsed
+          .map((item) => {
+            if (typeof item === 'string' || typeof item === 'number') {
+              return String(item).trim();
+            }
+            if (item && typeof item === 'object' && item.id != null) {
+              return String(item.id).trim();
+            }
+            return '';
+          })
+          .filter((id) => id.length > 0);
+        return Array.from(new Set(ids));
       }
     } catch {
-      // fallback
+      // fallback jika bukan JSON valid
     }
   }
-  return trimmed
-    .split(/[\s,;]+/)
+
+  // Pemisahan berdasarkan koma, titik koma, spasi, atau baris baru
+  const ids = trimmed
+    .split(/[\s,;\n\r]+/)
     .map((id) => id.trim())
-    .filter(Boolean);
+    .filter((id) => id.length > 0);
+
+  return Array.from(new Set(ids));
 }
 
 /**
@@ -71,7 +86,8 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
 
   async sendLeadNotification(payload: NotificationPayload): Promise<boolean> {
     let token = process.env.TELEGRAM_BOT_TOKEN;
-    let chatId = process.env.TELEGRAM_CHAT_ID;
+    const envChatIds = parseTelegramChatIds(process.env.TELEGRAM_CHAT_ID);
+    let dbChatIds: string[] = [];
 
     // Prioritaskan konfigurasi dinamis yang tersimpan di basis data (company_settings)
     try {
@@ -94,27 +110,29 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
           return false;
         }
         if (rows[0].token && rows[0].token.trim()) token = rows[0].token.trim();
-        if (rows[0].chatId && rows[0].chatId.trim()) chatId = rows[0].chatId.trim();
+        if (rows[0].chatId && rows[0].chatId.trim()) {
+          dbChatIds = parseTelegramChatIds(rows[0].chatId);
+        }
       }
     } catch (dbErr) {
       console.warn('[Notification:Telegram] Gagal membaca config dari basis data, menggunakan env:', dbErr);
     }
 
+    // Gabungkan Chat ID dari basis data dan environment variable (.env) tanpa duplikasi
+    const targetChatIds = Array.from(new Set([...dbChatIds, ...envChatIds]));
+
     // Jika kredensial belum diisi atau masih placeholder, lewati pengiriman
-    if (!token || !chatId || token.includes('placeholder') || chatId.includes('placeholder')) {
-      console.log('[Notification:Telegram] Kredensial TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID belum dikonfigurasi, lewati pengiriman.');
+    if (!token || token.includes('placeholder')) {
+      console.log('[Notification:Telegram] Kredensial TELEGRAM_BOT_TOKEN belum dikonfigurasi, lewati pengiriman.');
       return false;
     }
-
-    // Mendukung multiple chat IDs (misal: "1143585924, -10012345678" atau format JSON)
-    const targetChatIds = parseTelegramChatIds(chatId);
 
     if (targetChatIds.length === 0) {
-      console.warn('[Notification:Telegram] Tidak ada Chat ID yang valid untuk dikirim.');
+      console.warn('[Notification:Telegram] Tidak ada Chat ID penerima yang valid (baik di database maupun .env).');
       return false;
     }
 
-    console.log(`[Notification:Telegram] Memulai pengiriman notifikasi lead ke ${targetChatIds.length} penerima Telegram...`);
+    console.log(`[Notification:Telegram] Memulai pengiriman notifikasi lead ke ${targetChatIds.length} penerima Telegram (${targetChatIds.join(', ')})...`);
 
     const message = [
       '🚀 <b>Permintaan Proyek Baru Masuk!</b>',
@@ -150,7 +168,15 @@ export class TelegramNotificationAdapter implements NotificationAdapter {
           atLeastOneSuccess = true;
           console.log(`[Notification:Telegram] ✅ Sukses mengirim notifikasi lead ke Telegram Chat ID: ${targetId}`);
         } else {
-          console.error(`[Notification:Telegram] ❌ Gagal mengirim pesan ke ID ${targetId}:`, data.description);
+          let errorDetail = data.description || 'Gagal mengirim pesan';
+          if (errorDetail.includes('chat not found') || errorDetail.includes("can't initiate conversation")) {
+            errorDetail = `${errorDetail} -> PENTING: Pengguna ID ${targetId} belum pernah menekan /start pada bot di Telegram.`;
+          } else if (errorDetail.includes('bot was blocked by the user')) {
+            errorDetail = `${errorDetail} -> Bot telah diblokir oleh pengguna ID ${targetId}.`;
+          } else if (errorDetail.includes('Forbidden')) {
+            errorDetail = `${errorDetail} -> Akses ditolak: pastikan bot sudah diundang ke grup ID ${targetId} dengan izin kirim pesan.`;
+          }
+          console.error(`[Notification:Telegram] ❌ Gagal mengirim pesan ke ID ${targetId}:`, errorDetail);
         }
       } catch (error) {
         console.error(`[Notification:Telegram] ❌ Gangguan jaringan saat menghubungi Telegram API untuk ID ${targetId}:`, error);
