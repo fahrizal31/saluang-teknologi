@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { signOut } from '@/lib/auth-client';
 import { AdminIdleTimeout } from './AdminIdleTimeout';
@@ -201,10 +202,17 @@ export function AdminShell({ children, adminUser, sessionLastActiveAt }: AdminSh
           <div className="p-3 border-b-2 border-saluang-dark flex flex-col items-center justify-center gap-2.5 shrink-0">
             <Link
               href="/admin/leads"
-              className="w-10 h-10 rounded-xl bg-saluang-dark text-saluang-cream flex items-center justify-center font-black text-sm border-2 border-saluang-dark shadow-neo-sm hover:scale-105 transition-transform"
+              className="w-10 h-10 rounded-xl bg-saluang-cream flex items-center justify-center border-2 border-saluang-dark shadow-neo-xs hover:scale-105 transition-transform overflow-hidden p-1"
               title="Saluang Teknologi - Panel Admin"
             >
-              ST
+              <Image
+                src="/images/saluang-emblem.png"
+                alt="Saluang"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain"
+                priority
+              />
             </Link>
             <button
               id="admin-sidebar-expand-top-btn"
@@ -219,19 +227,15 @@ export function AdminShell({ children, adminUser, sessionLastActiveAt }: AdminSh
           </div>
         ) : (
           <div className="p-4 lg:p-5 border-b-2 border-saluang-dark flex items-center justify-between gap-2 shrink-0">
-            <Link href="/admin/leads" className="flex items-center gap-2.5 min-w-0 group">
-              <div className="w-8 h-8 rounded-xl bg-saluang-dark text-saluang-cream flex items-center justify-center font-black text-xs border-2 border-saluang-dark shadow-neo-xs shrink-0 group-hover:scale-105 transition-transform">
-                ST
-              </div>
-              <div className="min-w-0 flex flex-col">
-                <span className="font-black text-base tracking-tight text-saluang-dark truncate leading-tight">
-                  Saluang<span className="text-saluang-teal">.</span>Teknologi
-                </span>
-                <span className="text-[10px] font-bold text-saluang-dark/60 uppercase tracking-wider flex items-center gap-1.5 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-saluang-teal shrink-0" />
-                  <span className="truncate">Panel Admin</span>
-                </span>
-              </div>
+            <Link href="/admin/leads" className="flex items-center min-w-0 group hover:opacity-90 transition-opacity">
+              <Image
+                src="/images/saluang-logo.png"
+                alt="Saluang Teknologi"
+                width={150}
+                height={62}
+                className="h-8 lg:h-9 w-auto object-contain"
+                priority
+              />
             </Link>
             <button
               id="admin-sidebar-collapse-top-btn"
@@ -438,13 +442,15 @@ export function AdminShell({ children, adminUser, sessionLastActiveAt }: AdminSh
             <Menu className="w-5 h-5 text-saluang-dark" />
           </button>
 
-          <Link href="/admin/leads" className="flex items-center gap-1.5">
-            <span className="w-7 h-7 rounded-lg bg-saluang-dark text-saluang-cream flex items-center justify-center font-black text-xs border border-saluang-dark">
-              ST
-            </span>
-            <span className="font-black text-base tracking-tight text-saluang-dark">
-              Saluang<span className="text-saluang-teal">.</span>Admin
-            </span>
+          <Link href="/admin/leads" className="flex items-center">
+            <Image
+              src="/images/saluang-logo.png"
+              alt="Saluang Teknologi"
+              width={130}
+              height={54}
+              className="h-7 w-auto object-contain"
+              priority
+            />
           </Link>
         </div>
 
@@ -487,17 +493,20 @@ export function AdminShell({ children, adminUser, sessionLastActiveAt }: AdminSh
           >
             {/* Drawer Header */}
             <div className="p-4 border-b-2 border-saluang-dark flex items-center justify-between bg-saluang-sand/50 shrink-0">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-saluang-dark text-saluang-cream flex items-center justify-center font-black text-xs border border-saluang-dark">
-                  ST
-                </div>
-                <div>
-                  <h3 className="font-black text-sm text-saluang-dark leading-tight">
-                    Saluang<span className="text-saluang-teal">.</span>Admin
-                  </h3>
-                  <p className="text-[10px] font-bold text-saluang-dark/60">Portal Manajemen</p>
-                </div>
-              </div>
+              <Link
+                href="/admin/leads"
+                className="flex items-center"
+                onClick={() => setMobileDrawerOpen(false)}
+              >
+                <Image
+                  src="/images/saluang-logo.png"
+                  alt="Saluang Teknologi"
+                  width={140}
+                  height={58}
+                  className="h-8 w-auto object-contain"
+                  priority
+                />
+              </Link>
 
               <button
                 type="button"

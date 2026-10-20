@@ -3,11 +3,11 @@
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { signIn } from '@/lib/auth-client';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Eye, EyeOff, Clock } from 'lucide-react';
+import { Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff, Clock } from 'lucide-react';
 
 function LoginFormContent() {
   const router = useRouter();
@@ -63,25 +63,22 @@ function LoginFormContent() {
 
   return (
     <div className="w-full max-w-md">
-      {/* Header Branding */}
-      <div className="text-center mb-8">
-        <Link href="/" className="inline-block group mb-3">
-          <span className="font-extrabold text-2xl md:text-3xl tracking-tight text-saluang-dark">
-            Saluang<span className="text-saluang-teal">.</span>Teknologi
-          </span>
+      {/* Header Branding: Logo Only */}
+      <div className="text-center mb-8 flex justify-center">
+        <Link
+          href="/"
+          className="inline-block group focus-visible:outline-none transition-transform duration-200 hover:scale-105"
+          aria-label="Kembali ke Beranda Saluang Teknologi"
+        >
+          <Image
+            src="/images/saluang-logo.png"
+            alt="Saluang Teknologi"
+            width={280}
+            height={116}
+            className="h-16 md:h-20 w-auto object-contain drop-shadow-xs"
+            priority
+          />
         </Link>
-        <div className="flex justify-center mb-2">
-          <Badge variant="teal" size="sm" className="gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Portal Internal</span>
-          </Badge>
-        </div>
-        <h1 className="text-xl md:text-2xl font-black text-saluang-dark tracking-tight">
-          Masuk ke Panel Admin
-        </h1>
-        <p className="text-xs md:text-sm text-saluang-dark/70 mt-1">
-          Gunakan akun resmi administrator Saluang Teknologi
-        </p>
       </div>
 
       {/* Card Form */}
