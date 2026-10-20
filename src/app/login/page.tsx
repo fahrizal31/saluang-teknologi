@@ -46,9 +46,15 @@ function LoginFormContent() {
         return;
       }
 
-      // Berhasil login, arahkan ke dashboard admin
-      router.push(callbackUrl);
-      router.refresh();
+      // Berhasil login, perbarui timestamp aktivitas admin di localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('saluang_admin_last_activity', String(Date.now()));
+        } catch {}
+      }
+
+      // Arahkan ke dashboard admin dengan hard navigation agar cookie dan sesi ter-mount bersih
+      window.location.href = callbackUrl;
     } catch (err: unknown) {
       console.error('Login error:', err);
       const detail = err instanceof Error ? err.message : '';

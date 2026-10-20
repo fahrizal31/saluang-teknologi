@@ -51,8 +51,9 @@ export async function getVerifiedAdminSession(headersList: Headers): Promise<Ver
   }
 
   const rawDate = sessionResult.session.updatedAt || sessionResult.session.createdAt;
-  const lastActiveTimestamp = new Date(rawDate).getTime();
-  const idleElapsedMs = Date.now() - lastActiveTimestamp;
+  const parsedTime = rawDate ? new Date(rawDate).getTime() : NaN;
+  const lastActiveTimestamp = !isNaN(parsedTime) && parsedTime > 0 ? parsedTime : Date.now();
+  const idleElapsedMs = Math.max(0, Date.now() - lastActiveTimestamp);
 
   // Skenario: Tidak ada pergerakan/aktivitas lebih dari 1 jam
   if (idleElapsedMs >= IDLE_TIMEOUT_MS) {

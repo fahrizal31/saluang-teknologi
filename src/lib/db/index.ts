@@ -25,6 +25,7 @@ function getDbConnectionConfig(): mysql.PoolOptions {
         user: decodeURIComponent(parsed.username || 'root'),
         password: decodeURIComponent(parsed.password || ''),
         database: parsed.pathname.replace(/^\//, '') || 'saluang_db',
+        timezone: 'Z',
       };
     } catch {
       // fallback jika URL gagal diparsing
@@ -61,6 +62,7 @@ function getDbConnectionConfig(): mysql.PoolOptions {
   const isServerless = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
   return {
     ...baseConfig,
+    timezone: 'Z',
     waitForConnections: true,
     connectionLimit: isServerless ? 3 : 10,
     queueLimit: 0,
@@ -76,6 +78,7 @@ function getFallbackConfig(): mysql.PoolOptions {
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'saluang_db',
+    timezone: 'Z',
   };
 }
 

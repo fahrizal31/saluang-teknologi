@@ -69,22 +69,27 @@ export function AdminIdleTimeout({ sessionLastActiveAt }: AdminIdleTimeoutProps)
 
   // Setup Activity Listeners & Cross-Tab Sync
   useEffect(() => {
-    // 1. Inisialisasi awal timestamp dari localStorage atau server timestamp
+    // 1. Inisialisasi awal timestamp dari server timestamp atau localStorage
     try {
+      const now = Date.now();
       const stored = localStorage.getItem(STORAGE_LAST_ACTIVITY_KEY);
       const parsed = stored ? Number(stored) : NaN;
 
-      let initialTimestamp = Date.now();
-      if (!isNaN(parsed) && parsed > 0) {
-        initialTimestamp = parsed;
-      } else if (sessionLastActiveAt && sessionLastActiveAt > 0) {
-        initialTimestamp = sessionLastActiveAt;
-      }
+      let initialTimestamp = now;
 
-      // Jika sudah lewat 1 jam sejak aktivitas terakhir sebelumnya
-      if (Date.now() - initialTimestamp >= ONE_HOUR_MS) {
-        performLogout();
-        return;
+      // Prioritas 1: Waktu aktivitas yang diverifikasi server jika valid dan belum lewat 1 jam
+      if (sessionLastActiveAt && sessionLastActiveAt > 0 && now - sessionLastActiveAt < ONE_HOUR_MS) {
+        initialTimestamp = sessionLastActiveAt;
+        // Jika ada waktu di localStorage yang lebih baru dalam rentang 1 jam, gunakan yang lebih baru
+        if (!isNaN(parsed) && parsed > sessionLastActiveAt && now - parsed < ONE_HOUR_MS) {
+          initialTimestamp = parsed;
+        }
+      } else if (!isNaN(parsed) && parsed > 0 && now - parsed < ONE_HOUR_MS) {
+        // Prioritas 2: localStorage jika belum lewat 1 jam
+        initialTimestamp = parsed;
+      } else {
+        // Fallback: Sesi baru dimulai sekarang, reset timestamp
+        initialTimestamp = now;
       }
 
       lastActivityRef.current = initialTimestamp;
