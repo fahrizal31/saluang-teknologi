@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 280" fill="none">
+  <!-- Saluang Teknologi Emblem Only -->
+  <!-- Sun -->
+  <circle cx="85" cy="115" r="32" fill="#F4B223" stroke="#3A1F3D" stroke-width="7"/>
+  <!-- Sun motion lines -->
+  <line x1="26" y1="120" x2="60" y2="120" stroke="#3A1F3D" stroke-width="6.5" stroke-linecap="round"/>
+  <line x1="38" y1="102" x2="68" y2="102" stroke="#3A1F3D" stroke-width="6.5" stroke-linecap="round"/>
+  <line x1="30" y1="138" x2="55" y2="138" stroke="#3A1F3D" stroke-width="6.5" stroke-linecap="round"/>
+
+  <!-- Mountains -->
+  <path d="M70 160 L105 105 L145 160 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M125 160 L145 130 L165 160 Z" fill="#7ED3C6" stroke="#3A1F3D" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- Digital Circuit Trees / Antennas -->
+  <line x1="145" y1="140" x2="145" y2="38" stroke="#3A1F3D" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="145" cy="33" r="12" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="5.5"/>
+
+  <line x1="170" y1="145" x2="170" y2="65" stroke="#3A1F3D" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="170" cy="60" r="11" fill="#7ED3C6" stroke="#3A1F3D" stroke-width="5.5"/>
+
+  <line x1="192" y1="150" x2="192" y2="92" stroke="#3A1F3D" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="192" cy="87" r="10" fill="#F4B223" stroke="#3A1F3D" stroke-width="5.5"/>
+
+  <!-- Lower Crest / River Basin -->
+  <path d="M38 185 C38 240 80 272 135 272 C190 272 232 238 232 185 C232 175 195 180 160 190 C110 205 60 195 38 185 Z" fill="#2DBE9B" stroke="#3A1F3D" stroke-width="7.5" stroke-linejoin="round"/>
+
+  <!-- River Flow Lines & Circuit Nodes -->
+  <path d="M48 200 C80 235 150 205 218 200" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+  <circle cx="76" cy="225" r="9" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="4.5"/>
+  <circle cx="160" cy="215" r="9" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="4.5"/>
+
+  <!-- Leaping Saluang Fish -->
+  <!-- Tail -->
+  <path d="M30 178 C15 170 18 150 28 155 C38 160 48 168 55 174 Z" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="6.5" stroke-linejoin="round"/>
+  <!-- Fin Bottom -->
+  <path d="M95 195 C98 215 110 215 112 198 Z" fill="#EF5B4D" stroke="#3A1F3D" stroke-width="5.5"/>
+  <!-- Body -->
+  <path d="M35 172 C45 135 105 130 152 160 C135 195 75 200 35 172 Z" fill="#F4B223" stroke="#3A1F3D" stroke-width="7.5" stroke-linejoin="round"/>
+  <!-- Belly (White highlight) -->
+  <path d="M60 175 C90 158 135 165 148 162 C135 185 85 190 60 175 Z" fill="#FFFFFF" stroke="#3A1F3D" stroke-width="5.5"/>
+  <!-- Fish Head & Eye -->
+  <circle cx="132" cy="162" r="5" fill="#3A1F3D"/>
+  <circle cx="134" cy="160" r="1.8" fill="#FFFFFF"/>
+  <path d="M125 152 C120 162 120 172 125 178" stroke="#3A1F3D" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+</svg>
