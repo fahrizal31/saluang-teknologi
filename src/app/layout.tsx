@@ -87,7 +87,12 @@ export const metadata: Metadata = {
     ],
   },
   verification: {
-    google: 'Y61Jwob0aPlHCR6LQz7M2H1WcJwRRIi2eAkcks8w5H8',
+    google: [
+      'Y61Jwob0aPlHCR6LQz7M2H1WcJwRRIi2eAkcks8w5H8',
+      'Y61Jwob0aPIHCR6LQz7M2H1WcJwRRli2eAkcks8w5H8',
+      'Y61Jwob0aPIHCR6LQz7M2H1WcJwRRIi2eAkcks8w5H8',
+      'Y61Jwob0aPlHCR6LQz7M2H1WcJwRRli2eAkcks8w5H8',
+    ],
   },
 };
 
@@ -122,6 +127,9 @@ export default async function RootLayout({
     <html lang="id" className={`${jakarta.variable} font-sans scroll-smooth`}>
       <head>
         <meta name="google-site-verification" content="Y61Jwob0aPlHCR6LQz7M2H1WcJwRRIi2eAkcks8w5H8" />
+        <meta name="google-site-verification" content="Y61Jwob0aPIHCR6LQz7M2H1WcJwRRli2eAkcks8w5H8" />
+        <meta name="google-site-verification" content="Y61Jwob0aPIHCR6LQz7M2H1WcJwRRIi2eAkcks8w5H8" />
+        <meta name="google-site-verification" content="Y61Jwob0aPlHCR6LQz7M2H1WcJwRRli2eAkcks8w5H8" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48" />
