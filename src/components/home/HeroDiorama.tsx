@@ -153,8 +153,8 @@ export const HeroDiorama: React.FC<HeroDioramaProps> = ({ whatsappNumber }) => {
               yang Serius.
             </h1>
 
-            <p className="text-sm sm:text-base text-saluang-dark/80 font-semibold leading-relaxed max-w-md">
-              Website, sistem informasi, dan aplikasi Android yang kami bangun untuk klien di Kalimantan Tengah dan seluruh Indonesia.
+            <p className="text-sm sm:text-base text-saluang-dark/80 font-semibold leading-relaxed max-w-lg">
+              Jasa pembuatan website profesional, aplikasi Android, dan sistem informasi untuk UMKM, perusahaan, dan instansi di Muara Teweh, Barito Utara, Kalimantan Tengah, serta seluruh Indonesia.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">

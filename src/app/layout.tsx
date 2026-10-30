@@ -24,20 +24,25 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    default: 'Saluang Teknologi - Mitra Rekayasa Software & Solusi Digital',
+    default: 'Jasa Pembuatan Website Muara Teweh | Saluang Teknologi',
     template: '%s | Saluang Teknologi',
   },
   description:
-    'Jasa pembuatan website profesional, sistem informasi kustom, aplikasi Android modern, dan perangkat lunak handal untuk akselerasi bisnis Anda.',
+    'Jasa pembuatan website profesional, aplikasi Android & sistem informasi di Muara Teweh, Barito Utara, Kalteng bersama Saluang Teknologi. Konsultasi gratis!',
   keywords: [
+    'jasa pembuatan website muara teweh',
+    'jasa pembuatan website barito utara',
+    'jasa pembuatan website kalimantan tengah',
+    'software house muara teweh',
+    'software house barito utara',
+    'jasa pembuatan aplikasi android muara teweh',
+    'pembuatan sistem informasi muara teweh',
+    'saluang teknologi',
     'jasa pembuatan website',
     'pembuatan sistem informasi',
     'jasa pembuatan aplikasi android',
     'software house indonesia',
-    'konsultan it',
-    'saluang teknologi',
-    'jasa pembuatan web kalimantan tengah',
-    'software house barito utara',
+    'konsultan it muara teweh',
   ],
   authors: [{ name: 'Saluang Teknologi' }],
   creator: 'Saluang Teknologi',
@@ -46,16 +51,16 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'id_ID',
     url: '/',
-    title: 'Saluang Teknologi - Mitra Rekayasa Software & Solusi Digital',
+    title: 'Jasa Pembuatan Website Muara Teweh | Saluang Teknologi',
     description:
-      'Wujudkan website berkecepatan tinggi, sistem informasi operasional terukur, dan aplikasi mobile handal bersama Saluang Teknologi.',
+      'Jasa pembuatan website profesional, aplikasi Android & sistem informasi di Muara Teweh, Barito Utara, Kalteng bersama Saluang Teknologi. Konsultasi gratis!',
     siteName: 'Saluang Teknologi',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Saluang Teknologi - Software House & Solusi Digital',
+    title: 'Jasa Pembuatan Website Muara Teweh | Saluang Teknologi',
     description:
-      'Jasa pembuatan website, sistem informasi, dan aplikasi Android berkinerja tinggi.',
+      'Jasa pembuatan website profesional, aplikasi Android & sistem informasi di Muara Teweh, Barito Utara, Kalteng bersama Saluang Teknologi. Konsultasi gratis!',
   },
   robots: {
     index: true,
